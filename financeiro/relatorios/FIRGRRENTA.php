@@ -1,0 +1,236 @@
+<?
+include "cabecalho.php";
+require_once "../../common/config.financeiro.php";
+require_once "../../common/config.prestconta.php";
+
+$sql = "
+select
+a.codfilial,
+a.loja,
+a.codcliente,
+DATE_FORMAT(DATE_ADD(concat(substring(base,1,4),'-',substring(base,5,2),'-',substring(base,7,2)), INTERVAL dias DAY),'%d/%m/%Y'),
+DATE_FORMAT(b.datausuario,'%d/%m/%Y'),
+nfn,
+nftipo,
+nfvale,
+sum(custoproduto*quantidade),
+descvalor,
+acordovalor,
+dpvalor+divvalor,
+javalor,
+TO_DAYS(b.datausuario),
+TO_DAYS(concat(substring(base,1,4),'-',substring(base,5,2),'-',substring(base,7,2)))+dias,
+sum(valoricms+valoricmssub+valoripi+valorpis+valorcofins+despicms)
+from $mysql_compensacao_table a
+LEFT JOIN $mysql_complog_table b ON b.idcomp = a.idcomp
+LEFT join $mysql_vendas_table c on (substring(a.nfn,1,6) = c.notafiscal and c.codcliente = a.codcliente)
+where $where and nfsit <> 'N' group by a.nfn, a.codcliente order by a.loja";
+$result = execsql($sql);
+$num_rows = mysql_num_rows($result);
+if ($num_rows == 0) { 
+	erro("Nenhuma compensação para o periodo!");
+} else {
+ echo '
+ 	<table border="1" bordercolor="black" cellpadding="2" cellspacing="0" align="center" width="95%">
+        <tr class="tdsubcabecalho2"> 
+          <td align="center"><font size=0><b>Filial</b></td>
+          <td align="center"><font size=0><b>Loja</b></td>
+          <td align="center"><font size=0><b>Cód</b></td>
+          <td align="center"><font size=0><b>Dt. Venc.</b></td>
+          <td align="center"><font size=0><b>Dt. Oper.</b></td>
+          <td align="center"><font size=0><b>Nº</b></td>
+          <td align="center"><font size=0><b>Tipo</b></td>
+          <td align="center"><font size=0><b>Valor NF</b></td>
+          <td align="center"><font size=0><b>CPV</b></td>
+          <td align="center"><font size=0><b>Impostos</b></td>
+          <td align="center"><font size=0><b>Frete</b></td>
+		  <td align="center"><font size=0><b>Desc. Comer.</b></td>
+          <td align="center"><font size=0><b>Acor. Comer.</b></td>
+          <td align="center"><font size=0><b>Outras Desp.</b></td>
+          <td align="center"><font size=0><b>ZREB</b></td>
+	      <td align="center"><font size=0><b>Desc. Finan.</b></td>
+	      <td align="center"><font size=0><b>ZRG</b></td>
+          <td align="center"><font size=0><b>Taxa</b></td>
+          <td align="center"><font size=0><b>Resul. Venda</b></td>
+          <td align="center"><font size=0><b>% Rent.</b></td>
+		</tr>';
+
+	while($row = mysql_fetch_row($result)) {
+
+		if (((substr($row[1],0,1) == "C") && (substr($loja,0,1) != substr($row[1],0,1))) || ((substr($row[1],0,1) == "M") && (substr($loja,0,1) != substr($row[1],0,1)))) {
+			$prazomedio = @number_format($prazomedio/$pznf,'2');
+			$w = " and codcliente in (".substr($codclientes,0,-1).")";
+			$row2 = mysql_fetch_row(execsql("select sum(if (codtipofatura in ('ERG','ZD1B','ZD2B','ZDEG','ZDOA','ZPER','ZPRO','ZRG'),valorbruto+valordesconto+valoradicional,0)), sum(if (codtipofatura = 'ZREB',valorbruto+valordesconto+valoradicional,0)) from $mysql_vendas_table a where ".str_replace('data','datafatura',$where)." $w and codcliente = '$row[2]'"));
+  
+            if($pznf <= 0) { $pznf = 1;}
+			if($prazomedio <= 0 ) { $prazomedio = 1;}
+
+			echo '
+			<tr class="tdsubcabecalho1" id="'.$cab.'"> 
+			  <td align="center" colspan="7"><font size=0><a href="#" onclick="toggleRows(this)" class="folder"><b>'.$cab.'</b></a></td>
+			  <td align="right"><font size=0>'.number_format($gnf,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gcpf,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gimposto,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gfrete,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gdescc,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gacordo,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($goutrd,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row2[1],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gdescf,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row2[0],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format(((($pzdescf/$pznf)*100)/$prazomedio),'2',',','.').'%</td>
+			  <td align="right"><font size=0>'.number_format($gnf-($gcpf+$gdescc+$gacordo+$goutrd+$gdescf+$gimposto+$gfrete+$row2[0]+$row2[1]),'2',',','.').'</td>
+			  <td align="right" nowrap><font size=0>'.number_format((($gnf-($gcpf+$gdescc+$gacordo+$goutrd+$gdescf+$gimposto+$gfrete+$row2[0]+$row2[1]))/$gnf)*100,'2',',','.').'%</td>
+			</tr>'.$sub;
+
+		//	echo $gdescf." - ".$gnf." - ".$gdescc." - ".$row[14]." - ".$row[13]." - ".number_format(($gdescf/(($gnf-$gdescc)*(($row[14]-$row[13])/30)))*100,'2',',','.')."<bR>";
+
+			$gnf = 0;
+			$gcpf = 0;
+			$gdescc = 0;
+			$gacordo = 0;
+			$goutrd = 0;
+			$gdescf = 0;
+			$gimposto = 0;
+			$gfrete = 0;
+			$sub = "";
+			$pznf = 0;
+			$pzdescf = 0;
+			$prazomedio = 0;
+			$codclientes = "";
+			$totboni += $row2[0];
+			$totzrg += $row2[1];
+		}
+
+
+	if (is_numeric(substr($row[1],0,1))) { 
+		$cab = "Bompreço";
+	} elseif(substr($row[1],0,1) == "M") {
+		$cab = "Makro";
+	} elseif(substr($row[1],0,1) == "C") {
+		$cab = "CBD";
+	}
+	$resul = execsql("select sum(valorfretenf) from $mysql_romfrete_table d where d.notafiscal = '$row[5]' and d.codcliente = '$row[2]'");
+	$row2 = mysql_fetch_row($resul);
+	$row[16] = $row2[0];
+
+		$sub .= '
+			<tr id="'.$cab.'-'.$row2[0].'"> 
+			  <td align="center"><font size=0>'.$row[0].'</td>
+			  <td align="center"><font size=0>'.$row[1].'</td>
+			  <td align="center"><font size=0>'.$row[2].'</td>
+			  <td align="center"><font size=0>'.$row[3].'</td>
+			  <td align="center"><font size=0>'.$row[4].'</td>
+			  <td align="center"><font size=0>'.$row[5].'</td>
+			  <td align="center"><font size=0>'.$row[6].'</td>
+			  <td align="right"><font size=0>'.number_format($row[7],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row[8],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row[15],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row[16],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row[9],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row[10],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row[11],'2',',','.').'</td>
+			  <td align="center"><font size=0> - </td>
+			  <td align="right"><font size=0>'.number_format($row[12],'2',',','.').'</td>
+			  <td align="center"><font size=0> - </td>
+			  <td align="right"><font size=0>'.@number_format(($row[12]/(($row[7]-$row[9])*(($row[14]-$row[13])/30)))*100,'2',',','.').'%</td>
+			  <td align="right"><font size=0>'.number_format($row[7]-($row[8]+$row[9]+$row[10]+$row[11]+$row[12]+$row[15]+$row[16]),'2',',','.').'</td>
+			  <td align="right" nowrap><font size=0>'.number_format((($row[7]-($row[8]+$row[9]+$row[10]+$row[11]+$row[12]+$row[15]+$row[16]))/$row[7])*100,'2',',','.').'%</td>
+			</tr>';
+
+
+			$vnf += $row[7];
+			$vcpf += $row[8];
+			$vdescc += $row[9];
+			$vacordo += $row[10];
+			$voutrd += $row[11];
+			$vdescf += $row[12];
+			$vimposto += $row[15];
+			$vfrete += $row[16];
+
+			$gimposto += $row[15];
+			$gfrete += $row[16];
+			$gnf += $row[7];
+			$gcpf += $row[8];
+			$gdescc += $row[9];
+			$gacordo += $row[10];
+			$goutrd += $row[11];
+			$gdescf += $row[12];
+
+			if (($row[14]-$row[13])/30 > 0) {
+				$prazomedio += (($row[14]-$row[13])/30)*($row[7]-$row[9]);
+				$pzdescf += $row[12];
+				$pznf += $row[7]-$row[9];
+
+				$aprazomedio += (($row[14]-$row[13])/30)*($row[7]-$row[9]);
+				$apzdescf += $row[12];
+				$apznf += $row[7]-$row[9];
+			}
+
+			$loja = $row[1];
+			$codclientes .= "'".$row[2]."',";
+	}
+
+		$row2 = mysql_fetch_row(execsql("select sum(if (codtipofatura in ('ERG','ZD1B','ZD2B','ZDEG','ZDOA','ZPER','ZPRO','ZRG'),valorbruto+valordesconto+valoradicional,0)), sum(if (codtipofatura = 'ZREB',valorbruto+valordesconto+valoradicional,0)) from $mysql_vendas_table a where ".str_replace('data','datafatura',$where)." $w and codcliente = '$row[2]'"));
+		$prazomedio = @number_format($prazomedio/$pznf,'2');
+		$aprazomedio = @number_format($aprazomedio/$apznf,'2');
+
+        if($pznf <= 0) { $pznf = 1;}
+     	if($prazomedio <= 0 ) { $prazomedio = 1;}
+
+
+		echo '
+			<tr class="tdsubcabecalho1" id="'.$cab.'"> 
+			  <td align="center" colspan="7"><font size=0><a href="#" onclick="toggleRows(this)" class="folder"><b>'.$cab.'</b></a></td>
+			  <td align="right"><font size=0>'.number_format($gnf,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gcpf,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gimposto,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gfrete,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gdescc,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($gacordo,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($goutrd,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row2[1],'2',',','.').'</td>
+  			  <td align="right"><font size=0>'.number_format($gdescf,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($row2[0],'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format(((($pzdescf/$pznf)*100)/$prazomedio),'2',',','.').'%</td>
+			  <td align="right"><font size=0>'.number_format($gnf-($gcpf+$gdescc+$gacordo+$goutrd+$gdescf+$gimposto+$gfrete+$row2[0]+$row2[1]),'2',',','.').'</td>
+			  <td align="right" nowrap><font size=0>'.number_format((($gnf-($gcpf+$gdescc+$gacordo+$goutrd+$gdescf+$gimposto+$gfrete+$row2[0]+$row2[1]))/$gnf)*100,'2',',','.').'%</td>
+			</tr>'.$sub;
+			$totboni += $row2[0];
+			$totzrg += $row2[1];
+            if ($apznf == 0) $apznf = 1;
+			if ($aprazomedio == 0) $aprazomedio = 1;
+			echo '
+			<tr class="tdsubcabecalho1"> 
+			  <td align="center" colspan="7"> TOTAL</td>
+			  <td align="right"><font size="0">'.number_format($vnf,'2',',','.').'</td>
+			  <td align="right"><font size="0">'.number_format($vcpf,'2',',','.').'</td>
+			  <td align="right"><font size="0">'.number_format($vimposto,'2',',','.').'</td>
+			  <td align="right"><font size="0">'.number_format($vfrete,'2',',','.').'</td>
+			  <td align="right"><font size="0">'.number_format($vdescc,'2',',','.').'</td>
+			  <td align="right"><font size="0">'.number_format($vacordo,'2',',','.').'</td>
+			  <td align="right"><font size="0">'.number_format($voutrd,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($totzrg,'2',',','.').'</td>
+			  <td align="right"><font size="0">'.number_format($vdescf,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format($totboni,'2',',','.').'</td>
+			  <td align="right"><font size=0>'.number_format(((($apzdescf/$apznf)*100)/$aprazomedio),'2',',','.').'%</td>
+			  <td align="right"><font size=0>'.number_format($vnf-($vcpf+$vdescc+$vacordo+$voutrd+$vdescf+$vimposto+$vfrete+$totboni+$totzrg),'2',',','.').'</td>
+			  <td align="right" nowrap><font size=0>'.number_format((($vnf-($vcpf+$vdescc+$vacordo+$voutrd+$vdescf+$vimposto+$vfrete+$totboni+$totzrg))/$vnf)*100,'2',',','.').'%</td>
+			</tr>';
+
+}
+
+echo '</table>';
+include "rodape.php";
+
+
+function porcento($vreal,$vmeta) {
+	if ($vreal == '0.00' or $vreal == '') $vreal = '0';
+	if ($vmeta == '0.00' or $vmeta == '') $vmeta = '1';
+	if ((100*$vreal/$vmeta) > 999) $porcentagem = "999.99"; 
+	elseif ((100*$vreal/$vmeta) < 0) $porcentagem = "0";
+	else $porcentagem = (100*$vreal/$vmeta);
+
+	return number_format($porcentagem,'2',',','.');
+}
+?>

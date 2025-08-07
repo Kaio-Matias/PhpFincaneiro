@@ -1,0 +1,163 @@
+<?
+include "cabecalho.php";
+require_once "../../common/config.financeiro.php";
+require_once "../../common/config.prestconta.php";
+require_once "../../common/config.gvendas.php";
+
+
+echo '
+ 	<table border="1" bordercolor="black" cellpadding="2" cellspacing="0" align="center" width="95%">
+        <tr class="tdsubcabecalho2"> 
+		  <td align="center" colspan="2"><font size="0"><b>Cliente</b></td>
+          <td align="center" colspan="4"><font size="0"><b>Emissão</b></td>
+          <td align="center" colspan="3"><font size="0"><b>Entrega</b></td>
+          <td align="center" colspan="3"><font size="0"><b>Previsão</b></td>
+		</tr>
+        <tr class="tdsubcabecalho2"> 
+          <td align="center"><font size="0"><b>Código</b></td>
+          <td align="center"><font size="0"><b>Nome</b></td>
+
+          <td align="center"><font size="0"><b>Dt.Fatura</b></td>
+          <td align="center"><font size="0"><b>Dias</b></td>
+          <td align="center"><font size="0"><b>Vencto |1|</b></td>
+          <td align="center"><font size="0"><b>Valor</b></td>
+
+
+	      <td align="center"><font size="0"><b>Data</b></td>
+	      <td align="center"><font size="0"><b>Vencto |2|</b></td>
+          <td align="center"><font size="0"><b>Nota Fiscal</b></td>
+
+          <td align="center"><font size="0"><b>Vencto |3|</b></td>
+          <td align="center"><font size="0"><b>Diferença</b></td>
+          <td align="center"><font size="0"><b>Valor</b></td>
+		</tr>';
+    $where = str_replace('a.data','p.vencto',$where);
+    $where = str_replace('a.codfilial','v.codfilial',$where);
+	$sql = "select p.idrede, p.loja, p.nfn, DATE_FORMAT(p.vencto,'%d/%m/%Y'),p.valor,a.codcliente,p.vencto from $mysql_prevpago_table p
+	inner join $mysql_lojas_table a ON ( p.idrede = a.idrede and p.loja = a.loja)
+	where $where  order by p.idrede, a.loja, p.nfn";
+	$result = execsql($sql);
+	$idred_ant = '';
+	while($row = mysql_fetch_row($result)) {
+        $i ++;
+	    $sqlv = "select codcliente,DATE_FORMAT(datafatura,'%d/%m/%Y'),sum(valorbruto+valordesconto+valoradicional),dias,notafiscal,base from $mysql_vendas_table where codcliente = '".$row[5]."' and notafiscal like '%".$row[2]."%' group by notafiscal";
+	    $resultv = execsql($sqlv);
+        $rowv = mysql_fetch_row($resultv);
+		if ($row[0] == '01' || $row[0] == '15') $rowv[3] = '45';
+	    $sqlb = "select DATE_FORMAT(datacanhoto,'%d/%m/%Y'),datacanhoto from $mysql_baixas_table where codcliente = '".$row[5]."' and notafiscal ='".$rowv[4]."'";
+	    $resultb = execsql($sqlb);
+        $rowb = mysql_fetch_row($resultb);
+        if ($i == 1) $idred_ant = $row[0];
+        if ($idred_ant <> $row[0]){
+            echo '<tr> 
+	              <td align="center"><font size="0">Total Rede</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+			      <td align="center"><font size="0">'.number_format($totrc,'2',',','.').'</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+	              <td align="right"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">'.number_format($totrd,'2',',','.').'</td>
+		          </tr>';
+            $idred_ant = $row[0];
+		    $totrd =0;
+		    $totrc =0;
+		}
+        $nome = mysql_fetch_array(execsql("SELECT nome from $mysql_clientes_table where codcliente = '".$row[5]."'"));
+//
+        $dias = $rowv[3];
+        $dia = substr($rowv[5],6,2);
+        $mes = substr($rowv[5],4,2);
+        $ano = substr($rowv[5],0,4);
+        $dataFinal = mktime(24*$dias, 0, 0, $mes, $dia, $ano);
+        $vencto = date('d/m/Y',$dataFinal);
+//
+        $dias = $rowv[3];
+        $dia = substr($rowb[1],8,2);
+        $mes = substr($rowb[1],5,2);
+        $ano = substr($rowb[1],0,4);
+        $dataFinal = mktime(24*$dias, 0, 0, $mes, $dia, $ano);
+        $vencto2 = date('d/m/Y',$dataFinal);
+
+//
+        $d2 = $vencto2;
+        $d1 = $row[3];
+       $dd = diasIntervalo($d2,$d1 );
+
+    	echo '
+			<tr> 
+			  <td align="center"><font size="0">'.$row[5].'</td>
+			  <td align="left"><font size="0">'.$nome[0].'</td>
+
+			  <td align="center"><font size="0">'.$rowv[1].'</td>
+			  <td align="center"><font size="0">'.$rowv[3].'</td>
+			  <td align="center"><font size="0">'.$vencto.'</td>
+			  <td align="center"><font size="0">'.number_format($rowv[2],'2',',','.').'</td>
+
+			  <td align="center"><font size="0">'.$rowb[0].'</td>
+			  <td align="center"><font size="0">'.$vencto2.'</td>
+			  <td align="center"><font size="0">'.$rowv[4].'</td>
+
+			  <td align="center"><font size="0">'.$row[3].'</td>
+			  <td align="center"><font size="0">'.$dd.'</td>
+			  <td align="center"><font size="0">'.number_format($row[4],'2',',','.').'</td>
+			</tr>';
+		$total += $row[4];
+		$totrd += $row[4];
+		$totrc += $rowv[2];
+	    $tottc += $rowv[2];
+	}
+    echo '<tr> 
+	              <td align="center"><font size="0">Total Rede</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+			      <td align="center"><font size="0">'.number_format($totrc,'2',',','.').'</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">&nbsp</td>
+	              <td align="right"><font size="0">&nbsp</td>
+		          <td align="center"><font size="0">'.number_format($totrd,'2',',','.').'</td>
+		          </tr>';
+
+   	echo '<tr> 
+			  <td align="center"><font size="0">Total</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">'.number_format($tottc,'2',',','.').'</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">'.number_format($total,'2',',','.').'</td>
+			</tr>';
+
+echo '</table>';
+        echo '
+ 	<table border="1" bordercolor="black" cellpadding="2" cellspacing="0" align="center" width="95%">
+   	  <br><br><tr> 
+		          <td align="center"><font size="0"> Legendas :</td>
+			  <td align="center"><font size="0">|1| - Vencimento a partir da emissão da NF</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">|2| - Vencimento a partir da entrega da NF</td>
+			  <td align="center"><font size="0">&nbsp</td>
+			  <td align="center"><font size="0">|3| - Vencimento informado pelo Cliente</td>
+			</tr>
+        </table>';
+function diasIntervalo($dataI, $dataF) {
+        $ini = mktime(0,0,0, substr($dataI, 3, 2), substr($dataI, 0, 2), substr($dataI, 6, 4));
+        $fim = mktime(0,0,0, substr($dataF, 3, 2), substr($dataF, 0, 2), substr($dataF, 6, 4));
+        $dd = round((($fim - $ini)/86400));
+        return $dd;
+}
+include "rodape.php";
+?>

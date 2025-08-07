@@ -1,0 +1,110 @@
+<?php
+$transacao = "FIRELATORI";
+require_once "../common/config.php";
+require_once "../common/common.php";
+require "../common/login.php";
+?>
+<html>
+<head>
+<title>Financeiro</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../common/relatorios/blue.css" rel="stylesheet" type="text/css">
+<link href="../../Intranet_Style.css" rel="stylesheet" type="text/css">
+<SCRIPT language=JavaScript src="../menu/menu_financeiro.js" type=text/javascript></SCRIPT>
+<SCRIPT language=JavaScript src="../menu/mmenu.js" type=text/javascript></SCRIPT>
+<BODY leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marginwidth="0" marginheight="0" class=body>
+<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr> 
+    <td width="20"><img src="../images/financeirobarra1.gif" height="32"></td>
+    <td width="100%"><img src="../images/fundoverdeclaro.gif" width="100%" height="32"></td>
+    <td width=69 ><img src="../images/barravaledouradoverdeclaro.gif" width="108" height="32"></td>
+  </tr>
+</table>
+<br><br><br>
+
+<SCRIPT LANGUAGE="JavaScript">
+function windows(myurl,tela) {
+	var newWindow;
+	var props = 'scrollBars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,width=780,height=500';
+	newWindow = window.open(myurl, tela, props);
+}
+</script>
+<table width="350" border="0" align="center" cellpadding="2" cellspacing="0">
+  <tr class="tdcabecalho"> 
+    <td colspan="2" align="center"><b>Relatórios</b></td>
+  </tr>
+  <tr class="tdsubcabecalho1"> 
+    <td colspan="2"><b>Resultado</b></td>
+  </tr>
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRFAPRPG">Faturamento por Prazo de Pagamento</a></td>
+  </tr>
+  <tr class="tdfundo"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRFABANCO">Faturamento por Banco</a></td>
+  </tr>
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRFAVALOR">Faturamento por Valor</a></td>
+  </tr>
+  <tr class="tdfundo"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRFACOPG">Faturamento por Condição de Pag.</a></td>
+  </tr>
+
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRLIQBANC">Disponibilidade por Banco</a></td>
+  </tr>
+
+  <tr class="tdsubcabecalho1"> 
+    <td colspan="2"><b>Cobrança</b></td>
+  </tr>
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRAGELIST">Aging-List</a></td>
+  </tr>
+  
+  <tr class="tdsubcabecalho1"> 
+    <td colspan="2"><b>Grandes Redes</b></td>
+  </tr>
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRGRCOMP">Compensação</a></td>
+  </tr>
+  <tr class="tdfundo"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRGRCONL">NF. não lançada</a></td>
+  </tr>
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRGRRENTA">Rentabilidade</a></td>
+  </tr> 
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRPREVPG">Previsão de Pagamento</a></td>
+  </tr> 
+
+  <tr class="tdsubcabecalho1"> 
+    <td colspan="2"><b>Devolução/Estorno - Clientes</b></td>
+  </tr>
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRDEVBANC">por Banco</a></td>
+  </tr>
+  <tr class="tdsubcabecalho1"> 
+    <td colspan="2"><b>Faturas de Fornecedores</b></td>
+  </tr>
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRFATVENC">Faturas Vencidas</a></td>
+  </tr>
+  <tr class="tddetalhe1"> 
+    <td>&nbsp;</td>
+    <td><a href="relatorio.php?transacao=FIRPAGAMEN">Pagamentos Realizados</a></td>
+  </tr>
+
+ </table>
+</body>
+</html>

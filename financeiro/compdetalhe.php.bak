@@ -1,0 +1,91 @@
+<?php
+
+//set the start time so we can calculate how long it takes to load the page.
+$mtime1 = explode(" ", microtime());
+$starttime = $mtime1[0] + $mtime1[1];
+
+$transacao = "FICOMPENSA";
+require_once "../common/config.php";
+require_once "../common/config.financeiro.php";
+require_once "../common/common.financeiro.php";
+require_once "../common/common.php";
+require_once "../common/config.gvendas.php";
+
+require "../common/login.php";
+
+?>
+<html>
+<head>
+<title>Financeiro</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../common/relatorios/blue.css" rel="stylesheet" type="text/css">
+<link href="../../Intranet_Style.css" rel="stylesheet" type="text/css">
+<BODY leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marginwidth="0" marginheight="0" class=body>
+<?
+$row = mysql_fetch_row(execsql("select codcliente, nfn, descvalor+divvalor, nfvalor from $mysql_compensacao_table a where a.idcomp = '$idcomp'"));
+?>
+<table width="99%" border="0" align="center">
+  <tr> 
+    <td align="center" class="tdsubcabecalho1"><b>Crítica da NF: <?=$row[1]?></b></td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td align="center">
+		<table border="1" bordercolor="black" cellpadding="2" cellspacing="0" width="95%">
+        <tr> 
+          <td align="center" class="tdsubcabecalho2"><font size="0"><b>Produto</b></td>
+          <td align="center" class="tdsubcabecalho2"><font size="0"><b>Valor Bruto(V)</b></td>
+          <td align="center" class="tdsubcabecalho" ><font size="0"><b>Valor Bruto(F)</b></td>
+		  <td align="center" class="tdsubcabecalho2"><font size="0"><b>Desconto(Contrato)</b></td>
+          <td align="center" class="tdsubcabecalho" ><font size="0"><b>Desconto(F)</b></td>
+		</tr>
+	<?
+	$sql = "
+select a.codproduto, sum(a.valorbruto+a.valordesconto+a.valoradicional), c.percentual from $mysql_vendas_table a 
+LEFT JOIN $mysql_contratos_table b ON (b.codcliente='$row[0]' and de <= '".date('Y-m-d')."' and ate >= '".date('Y-m-d')."')
+LEFT JOIN $mysql_contratospro_table c ON (c.idcontrato = b.idcontrato and a.codproduto = c.codproduto) 
+where a.notafiscal = '".$row[1]."' and a.codcliente = '$row[0]' group by a.codproduto order by a.codproduto";
+
+	$result2 = execsql($sql);
+	while($row2 = mysql_fetch_row($result2)) {
+		$vlrbruto += $row2[1];
+		$vlrdescc += ($row2[1]/100)*$row2[2];
+		echo '
+	    <tr> 
+          <td align="center" class="tddetalhe1"><font size="0">'.$row2[0].'</td>
+          <td align="right" class="tddetalhe1"><font size="0">'.number_format($row2[1],'2',',','.').'</td>
+          <td align="center"><font size="0">-</td>
+          <td align="right" class="tddetalhe1"><font size="0">('.$row2[2].'%) '.@number_format(($row2[1]/100)*$row2[2],'2',',','.').'</td>
+          <td align="center"><font size="0">-</td>
+		</tr>';
+	}
+echo '
+        <tr class="tdsubcabecalho2"> 
+          <td align="center" class="tdsubcabecalho2"><font size="0"><b>Total</b></td>
+          <td align="right"  class="tdsubcabecalho2"><font size="0"><b>'.number_format($vlrbruto,'2',',','.').'</b></td>
+          <td align="right"  class="tdsubcabecalho" ><font size="0"><b>'.number_format($row[3],'2',',','.').'</b></td>
+		  <td align="right"  class="tdsubcabecalho2"><font size="0"><b>('.@number_format(($vlrdescc/$vlrbruto)*100,'2',',','.').'%) '.number_format($vlrdescc,'2',',','.').'</b></td>
+		  <td align="right"  class="tdsubcabecalho" ><font size="0"><b>('.@number_format(($row[2]/$row[3])*100,'2',',','.').'%) '.number_format($row[2],'2',',','.').'</b></td>
+		</tr>';
+	?>
+		</table>
+	
+	</td>
+  </tr>
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr> 
+    <td align="center" class="tdcabecalho1"><b>Log</b></td>
+  </tr>
+  <tr> 
+    <td>
+<?
+	echo getStatus($idcomp);	
+	?>
+
+	</td>
+  </tr>
+</table>

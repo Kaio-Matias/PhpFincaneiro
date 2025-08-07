@@ -1,0 +1,47 @@
+<?php
+/***********************************************************************************************************
+**
+**	arquivo:	config.helpdesk.php
+**
+**	Variaveis do mysql para o sistema de HelpDesk
+**
+************************************************************************************************************
+	**
+	**	author:	Saulo Felipe
+	**	date:	16/05/02
+	**
+	*******************************************************************************************************/
+
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+// Tabelas do gerotina
+
+$mysql_database_gerotina = "novogerotind.";
+
+$mysql_ugb_table			=	$mysql_database_gerotina."ugb";					//mysql announcement table name
+$mysql_produtos_table		=	$mysql_database_gerotina."produtos";			//mysql ticket categories table
+$mysql_produtos_rel_table	=	$mysql_database_gerotina."produtos_relacao";			//mysql ticket categories table
+$mysql_indicadores_table	=	$mysql_database_gerotina."indicadores";			//mysql ticket priority table
+$mysql_mesano_table			=	$mysql_database_gerotina."mesano";				//mysql ticket priority table
+$mysql_movind_table			=	$mysql_database_gerotina."movindicadores";		//mysql ticket priority table
+
+$mysql_metas_table			=	$mysql_database_gerotina."metas";				//mysql ticket priority table
+$mysql_avaliacao_table		=	$mysql_database_gerotina."avaliacao";				//mysql ticket priority table
+
+$mysql_rcomite_table		=	$mysql_database_gerotina."respcomite";		//mysql ticket priority table
+$mysql_resp_table			=	$mysql_database_gerotina."responsaveis";		//mysql ticket priority table
+$mysql_membros_table		=	$mysql_database_gerotina."membrosugb";			//mysql ticket priority table
+$mysql_log_table			=	$mysql_database_gerotina."log";					//mysql ticket priority table
+
+$mysql_estugb_table			=	$mysql_database_gerotina."estrutura";				//mysql ticket priority table
+$mysql_estugbv_table		=	$mysql_database_gerotina."estvirtual";				//mysql ticket priority table
+
+$mysql_unidade_table		=	$mysql_database_gerotina."unidade";				//mysql ticket priority table
+$mysql_nivel_table			=	$mysql_database_gerotina."nivel";				//mysql ticket priority table
+$mysql_nivelv_table			=	$mysql_database_gerotina."nivel_dados";			//mysql ticket priority table
+
+$mysql_fca_table			=	$mysql_database_gerotina."fca";			//mysql ticket priority table
+$mysql_arquivos_table		=	$mysql_database_gerotina."arquivos";			//mysql ticket priority table
+$mysql_tendencia_table		=	$mysql_database_gerotina."tendencia";			//mysql ticket priority table
+
+?>

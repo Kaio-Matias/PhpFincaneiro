@@ -1,0 +1,100 @@
+<?php
+/*****************************************************************************************
+**	file:	ulist.php
+**
+**	This file lists the users/supporters/admins from the database and provides the links
+**	to edit their information.
+**
+******************************************************************************************
+	**
+	**	author:	JD Bottorf
+	**	date:	09/25/01
+	**************************************************************************************/
+
+$transacao = "LIVRE";
+require_once "common/config.php";
+require_once "common/common.php";
+require_once "common/login.php";
+include "common/data.php";
+include "common/cabecalho.php";
+?>
+<link href="Intranet_Style.css" rel="stylesheet" type="text/css">
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Valedourado - Intranet</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marginwidth="0" marginheight="0"><center>
+
+<?
+
+if($op=='salvar'){
+	execsql("update $mysql_users_table set nome='$nome', email='$email', ramal='$ramal', telefone='$telefone', localidade='$localidade', ccusto='$ccusto', celular='$celular', nascimento='$nascimento', telefone='$telefone' where id='$id'");
+	execsql("delete from $mysql_ugrupos_table where id='$id' and cod_grupo in ('27','37')");
+	execsql("insert into $mysql_ugrupos_table VALUES ($id,27)");
+	execsql("insert into $mysql_ugrupos_table VALUES ($id,37)");
+
+
+	$ok = "<br>Dados Atualizados!<br>Permissão Ok!";
+
+
+
+} 
+
+$info = getuserinfo(getUserId($cookie_name));
+echo '
+	<form action="pessoal.php" method=post>
+</table>
+<TABLE WIDTH=780 BORDER=0 CELLPADDING=2 CELLSPACING=1>
+  <TR valign=top> 
+    <TD colspan=4 align="center"><br>'.$ok.' </TD>
+  </TR>
+  <TR valign=top> 
+    <TD colspan=4>&nbsp; </TD>
+  </TR>
+';
+			echo "
+                <tr><td width=10%></td><td colspan=2 class=tdcabecalho1 align=left width=20%><b> Preencha todos os campos.</b></td></tr>
+				<tr><td width=10%></td>
+                <td class=tdsubcabecalho1 align=right width=30%><b> Nome: </b></td><td><input type=text value='".$info['nome']."' name=nome size=50></td></tr>
+				<tr><td></td><td class=tdsubcabecalho1 align=right width=30%><b> Usuário: </b></td><td>".$cookie_name."</td></tr>
+				<tr><td></td><td class=tdsubcabecalho1 align=right width=30%><b> Email: </b></td><td>".$cookie_name."@valedourado.com.br</td></tr>
+				<tr><td></td><td class=tdsubcabecalho1 align=right width=30%><b> Ramal: </b></td><td><input type=text value='".$info['ramal']."' name=ramal size=15></td></tr>
+				<tr><td></td><td class=tdsubcabecalho1 align=right width=30%><b> Localidade: </b></td><td class=back>
+     <select name=localidade>";
+                $sqlo="SELECT codigo, descricao FROM localidades";
+                $resultx=mysql_query($sqlo);
+                while($lrow=mysql_fetch_array($resultx)) {
+
+				echo "<option value=".$lrow[codigo]."  > ".$lrow[descricao]." </option>";
+
+                }
+
+           echo "
+				</select>
+				</td></tr>
+				<tr><td></td><td class=tdsubcabecalho1 align=right width=30%><b> C. Custo: </b></td><td class=back><input type=text name=ccusto value='".$info['ccusto']."' size=21></td></tr>
+        		<tr><td></td><td class=tdsubcabecalho1 align=right width=30%><b> Telefone Res: </b></td><td><input type=text value='".$info['telefone']."' name=telefone size=40></td></tr>
+				<tr><td></td><td class=tdsubcabecalho1 align=right width=30%><b> Celular: </b></td><td class=back><input type=text  value='".$info['celular']."' name=celular size=40></td></tr>
+				<tr><td></td><td class=tdsubcabecalho1 align=right width=30%><b> Data de Nascimento: </b></td><td class=back>
+				<input type=text name=nascimento size=11 maxlength=10 onFocus=\"javascript:vDateType='3'\" onKeyUp=\"DateFormat(this,this.value,event,false,'3')\" onBlur=\"DateFormat(this,this.value,event,true,'3')\"  value='".$info['nascimento']."' >
+				
+				
+				</td></tr>
+				  <input type=hidden name=op value='salvar'>
+				   <input type=hidden name=id value=".getUserId($cookie_name).">
+				   <input type=hidden name=email value=\"".$cookie_name."@valedourado.com.br\">
+				</td></tr>
+				</td></tr>
+			
+			</td></tr>
+		</table>
+			</td>
+			</tr>
+		</table>";
+
+			echo '<br><center><input style="border-style:none;background-color:#FFFFFF;" type="image" name=submit src="images/btsalvar.gif"><br>';
+			
+			include "aempresa/rodape.php";
+?>

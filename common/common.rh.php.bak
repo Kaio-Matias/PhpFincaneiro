@@ -1,0 +1,458 @@
+<?php
+/***********************************************************************************************************
+**
+**	arquivo:	common.php
+**
+**	Este arquivo contem as variaveis do sistema e todas as funções q são utilizadas na intranet
+**
+************************************************************************************************************
+	**
+	**	author:	James Reig
+	**	data:	22.01.2013
+	**
+	*******************************************************************************************************/
+
+
+/**********************************************************************************************************/
+/****************************	Outras Variáveis	***********************************************************/
+$versaoassessoria = "0.9devel";							// Versão do Controle de Assessoria
+
+
+/***********************************************************************************************************
+**	function createSelectCentro():
+************************************************************************************************************/
+
+function createSelectCentro()
+{
+	global $mysql_centros_table, $info;
+
+	$sql = "select centro, nome from $mysql_centros_table order by nome asc";
+
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['centro'] == $row[0]) echo $info['centro']." selected"; 
+				echo "> $row[0] - $row[1] </option>";
+	}
+}
+
+
+/***********************************************************************************************************
+**	function createSelectCcusto():
+**		Cria select dos Centros de custos
+**		Obs.: $cookie_name -> login do usuário.
+**
+**		Entradas: -
+**      Saída: A função imprime na tela com a utilização da função "echo" a select com as Ccustos
+**
+************************************************************************************************************/
+
+function createSelectCcusto()
+{
+	global $mysql_ccusto_table, $info;
+
+	$sql = "select substring(ccusto,5,6), nome from $mysql_ccusto_table order by ccusto asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['ccusto'] == $row[0]) echo $info['ccusto']." selected"; 
+				echo "> $row[0] - $row[1] </option>";
+	}
+}
+
+/***********************************************************************************************************
+**	function createSelectFunc():
+**		Cria select dos Funcionarios
+**		Obs.: $cookie_name -> login do usuário.
+**
+**		Entradas: -
+**      Saída: A função imprime na tela com a utilização da função "echo" a select com as Matricula e nome
+**
+************************************************************************************************************/
+
+function createSelectFunc()
+{
+	global $mysql_funcionario_table, $info;
+
+	$sql = "select matricula, nome from $mysql_funcionario_table order by nome asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['matricula'] == $row[0]) echo $info['matricula']." selected"; 
+			echo "> $row[0] - $row[1] </option>";
+	}
+}
+
+/***********************************************************************************************************
+**	function createSelectTpColab():
+**		Cria select dos Tipo de colaborador
+**		Obs.: $cookie_name -> login do usuário.
+**
+**		Entradas: -
+**      Saída: A função imprime na tela com a utilização da função "echo" a select com as Tipo de colaborador
+**
+************************************************************************************************************/
+
+function createSelectTpColab()
+{
+	global $mysql_tipo_colaborador_table, $info;
+
+	$sql = "select tipo_colab, descricao from $mysql_tipo_colaborador_table order by descricao asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['tipo_colab'] == $row[0]) echo $info['tipo_colab']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+/***********************************************************************************************************
+**	function createSelectTpafast()
+************************************************************************************************************/
+
+function createSelectTpafast()
+{
+	global $mysql_tp_afastam_table, $info;
+
+	$sql = "select tp_afastam, descricao from $mysql_tp_afastam_table order by descricao asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['tp_afastam'] == $row[0]) echo $info['tp_afastam']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+
+/***********************************************************************************************************
+**	function createSelectMotivo():
+**		Cria select dos Motivo
+**		Obs.: $cookie_name -> login do usuário.
+**
+**		Entradas: -
+**      Saída: A função imprime na tela com a utilização da função "echo" a select com as motivo
+**
+************************************************************************************************************/
+
+function createSelectMotivo()
+{
+	global $mysql_motivo_table, $info;
+
+	$sql = "select motivo, descricao from rh.motivo order by descricao asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['motivo'] == $row[0]) echo $info['motivo']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+
+/***********************************************************************************************************
+**	function createSelectFuncao():
+**		Cria select dos Motivo
+**		Obs.: $cookie_name -> login do usuário.
+**
+**		Entradas: -
+**      Saída: A função imprime na tela com a utilização da função "echo" a select com as motivo
+**
+************************************************************************************************************/
+
+function createSelectFuncao()
+{
+	global $mysql_funcao_table, $info;
+
+	$sql = "select funcao, descricao from $mysql_funcao_table order by descricao asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['funcao'] == $row[0]) echo $info['funcao']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+
+/***********************************************************************************************************
+**	function createSelectInstrucao():
+**		Cria select dos Instrucao
+**		Obs.: $cookie_name -> login do usuário.
+**
+**		Entradas: -
+**      Saída: A função imprime na tela com a utilização da função "echo" a select com as instrucao
+**
+************************************************************************************************************/
+
+function createSelectInstrucao()
+{
+	global $mysql_instrucao_table, $info;
+
+	$sql = "select instrucao, descricao from $mysql_instrucao_table order by descricao asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['instrucao'] == $row[0]) echo $info['instrucao']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+/***********************************************************************************************************
+**	function data():
+**  Tipo de Pessoa = Júrica ou Física
+************************************************************************************************************/
+function data($data)
+{
+	$dia = substr($data,0,2);
+	$mes = substr($data,3,2);
+	$ano = substr($data,6,4);
+	return $ano."-".$mes."-".$dia;
+}
+
+/***********************************************************************************************************
+**	function datainfo():
+**  Tipo de Pessoa = Júrica ou Física
+************************************************************************************************************/
+
+function datainfo($data)
+{
+
+	$dia = substr($data,8,2);
+	$mes = substr($data,5,2);
+	$ano = substr($data,0,4);
+	return $dia."-".$mes."-".$ano;
+}
+
+
+/***********************************************************************************************************
+**	function dataphp():
+**  Tipo de Pessoa = Júrica ou Física
+************************************************************************************************************/
+function dataphp($data)
+{
+	$dia = substr($data,8,2);
+	$mes = substr($data,5,2);
+	$ano = substr($data,0,4);
+	return $dia."/".$mes."/".$ano;
+}
+
+/***********************************************************************************************************
+**	function getfuncao($funcao):
+**		Mostra o Funcao
+************************************************************************************************************/
+
+function getfuncao($funcao)
+{
+	global $mysql_funcao_table;
+	$sql = "select descricao from $mysql_funcao_table where funcao = '".$funcao."'";
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+	return $row[0];
+}
+
+/***********************************************************************************************************
+**	function getcentro($centro):
+**		Mostra o Centro
+************************************************************************************************************/
+
+function getcentro($centro)
+{
+
+	global  $mysql_centros_table;
+
+	$sql = "select nome from  $mysql_centros_table where centro = '".$centro."'";
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+	return $row[0];
+}
+
+
+
+/***********************************************************************************************************
+**	function getmotivo($motivo):
+**		Mostra o motivo
+************************************************************************************************************/
+
+function getmotivo($motivo)
+{
+	global  $mysql_motivo_table;
+	$sql = "select descricao from  $mysql_motivo_table where motivo = '".$motivo."'";
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+	return $row[0];
+}
+
+/***********************************************************************************************************
+**	function getccusto($ccusto):
+**		Mostra o C.Custo
+************************************************************************************************************/
+
+function getccusto($ccusto)
+{
+	global  $mysql_ccusto_table;
+	$sql = "select nome from  $mysql_ccusto_table where ccusto = '".$ccusto."'";
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+	return $row[0];
+}
+/***********************************************************************************************************
+**	function horas:
+**		
+************************************************************************************************************/
+
+function horas($entrada,$saida)
+{
+    $hora01 = explode(":",$entrada);
+    $hora02 = explode(":",$saida);
+    $acumulador1 = ($hora01[0] * 3600) + ($hora01[1] * 60) + $hora01[2];
+    $acumulador2 = ($hora02[0] * 3600) + ($hora02[1] * 60) + $hora02[2];
+    $resultado = $acumulador2 - $acumulador1;
+    $hora_ponto = floor($resultado / 3600);
+    $resultado = $resultado - ($hora_ponto * 3600);
+    $min_ponto = floor($resultado / 60);
+    $resultado = $resultado - ($min_ponto * 60);
+    $secs_ponto = $resultado;
+    $tempo = $hora_ponto.":".$min_ponto.":".$secs_ponto;
+	return $tempo;
+}
+/***********************************************************************************************************
+**	function Somahoras:
+**		
+************************************************************************************************************/
+
+function somahoras($entrada,$saida)
+{
+    $hora01 = explode(":",$entrada);
+    $hora02 = explode(":",$saida);
+    $acumulador1 = ($hora01[0] * 3600) + ($hora01[1] * 60) + $hora01[2];
+    $acumulador2 = ($hora02[0] * 3600) + ($hora02[1] * 60) + $hora02[2];
+    $resultado = $acumulador2 + $acumulador1;
+    $hora_ponto = floor($resultado / 3600);
+    $resultado = $resultado - ($hora_ponto * 3600);
+    $min_ponto = floor($resultado / 60);
+    $resultado = $resultado - ($min_ponto * 60);
+    $secs_ponto = $resultado;
+    $tempo = $hora_ponto.":".$min_ponto.":".$secs_ponto;
+	return $tempo;
+}
+
+/***********************************************************************************************************
+**	function getusuario($idusuario):
+**		Mostra o Usuário
+************************************************************************************************************/
+
+function getusuario($id)
+{
+	$sql = "select login from UMDnew.usuarios where id = '".$id."'";
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+	return $row[0];
+}
+
+/***********************************************************************************************************
+**	function createAutoriza():
+************************************************************************************************************/
+
+function createAutoriza($idusuario)
+{
+	global $mysql_usuarios_table,$mysql_grpusuarios_table, $idusuario;
+    $idu = mysql_fetch_row(execsql("select idgrupousuario from UMDnew.usr_grpusuario where id  = '".$idusuario."' and idgrupousuario in ('52','51')"));
+	if ($idu[0] == 52) {
+        $sql = "select a.id, nome from UMDnew.usuarios as a inner join UMDnew.usr_grpusuario  as b ON b.id = a.id where idgrupousuario  = 51 order by login asc";
+    } 
+	if ($idu[0] == 51) {
+		$sql = "select a.id, nome from UMDnew.usuarios as a inner join UMDnew.usr_grpusuario  as b ON b.id = a.id where idgrupousuario  = 50 order by login asc";
+    }
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"> $row[1] </option>";
+	}
+}
+/***********************************************************************************************************
+**	function createAutoriza():
+************************************************************************************************************/
+
+function createAutoriza2() 
+{
+	global $mysql_usuarios_table,$mysql_grpusuarios_table, $info;
+	$sql = "select a.id, nome from UMDnew.usuarios as a INNER JOIN UMDnew.usr_grpusuario  as b ON b.id = a.id where b.idgrupousuario  = 50 order by login asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"> $row[1] </option>";
+	}
+}
+
+/***********************************************************************************************************
+**	function databanco():
+**  Retorna a data para dar entrada no banco de dados
+************************************************************************************************************/
+function databanco($data)
+{
+	$dia = substr($data,8,2);
+	$mes = substr($data,5,2);
+	$ano = substr($data,0,4);
+	return $dia."-".$mes."-".$ano;
+}
+
+
+/***********************************************************************************************************
+**	function getProcessoInfo():
+**		Takes one integer value as an input.  Queries the user table and returns an array containing all of
+**	the information that the database contains about the user with the id specified.
+************************************************************************************************************/
+function getProcessoInfo($codigo)
+{
+//	DATE_FORMAT(dataconcl,'%d/%m/%Y')
+	global $mysql_contratacao_table;
+	$sql = "select *  from $mysql_contratacao_table where codigo='$codigo'";
+	$result = execsql($sql);
+	$row = mysql_fetch_array($result);
+	return $row;
+}
+
+/***********************************************************************************************************
+**	function getProcessoInfod():
+**		Takes one integer value as an input.  Queries the user table and returns an array containing all of
+**	the information that the database contains about the user with the id specified.
+************************************************************************************************************/
+function getProcessoInfod($codigo)
+{
+	global $mysql_desligamento_table;
+	$sql = "select * from $mysql_desligamento_table where codigo='$codigo'";
+	$result = execsql($sql);
+	$row = mysql_fetch_array($result);
+	return $row;
+}
+
+/***********************************************************************************************************
+**	function getProcessoInfot():
+**		Takes one integer value as an input.  Queries the user table and returns an array containing all of
+**	the information that the database contains about the user with the id specified.
+************************************************************************************************************/
+function getProcessoInfot($codigo)
+{
+	global $mysql_transferencia_table;
+	$sql = "select * from $mysql_transferencia_table where codigo='$codigo'";
+	$result = execsql($sql);
+	$row = mysql_fetch_array($result);
+	return $row;
+}
+
+/***********************************************************************************************************
+**	function getProcessoInfof():
+**		Takes one integer value as an input.  Queries the user table and returns an array containing all of
+**	the information that the database contains about the user with the id specified.
+************************************************************************************************************/
+function getProcessoInfof($codigo)
+{
+	global $mysql_colaborador_table;
+	$sql = "select * from $mysql_colaborador_table where codigo='$codigo'";
+	$result = execsql($sql);
+	$row = mysql_fetch_array($result);
+	return $row;
+}
+
+?>

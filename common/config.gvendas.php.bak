@@ -1,0 +1,165 @@
+<?php
+/***************************************************************************************************************
+**
+**	arquivo:	config.gvendas.php
+**
+**	Variaveis do Sistema de Gestão de Vendas
+**
+****************************************************************************************************************
+	**
+	**	autor:		Saulo Felipe
+	**	criado:		29/8/2002
+	**  Atualizado: 8/10/2002
+	***********************************************************************************************************/
+
+/**************************************************************************************************************/
+/********************************	Variaveis do Mysql   ******************************************************/
+
+$mysql_db_gvendas = "gvendas";		//mysql Nome do Banco de dados
+$mysql_db_acao = "acao";
+
+$mysql_db_prestconta = "prestconta.";
+$mysql_db_financeiro = "compensacao.";
+
+/**************************************************************************************************************/
+/**************************************************************************************************************/
+// Tabelas Financeiro
+$mysql_compensacao_table		=	$mysql_db_financeiro."compensacao";		// Nome da tabela de Romaneios
+
+// Tabelas Prestcontas
+$mysql_romaneios_table		=	$mysql_db_prestconta."romaneios";		// Nome da tabela de Romaneios
+$mysql_portaria_table		=	$mysql_db_prestconta."portaria";// tabela de log de saida portaria por romaneio
+
+// Tabelas Gerais
+$mysql_promotor_table = $mysql_db_gvendas.".promotor";				    //mysql tabela de promotores
+$mysql_promotorcli_table = $mysql_db_gvendas.".promotor_cli";			//mysql tabela de vinculo cliente x promotor
+$mysql_vendedores_table = $mysql_db_gvendas.".vendedores";				//mysql tabela de vendedores
+$mysql_hierarquia_table = $mysql_db_gvendas.".hierarquia";				//mysql tabela de hierarquia
+$mysql_vendedorcx_table = $mysql_db_gvendas.".vendedorcx";				//mysql tabela de Cx dos vendedores
+$mysql_filiais_table = $mysql_db_gvendas.".filiais";					//mysql tabela de filiais
+$mysql_produtos_table = $mysql_db_gvendas.".produtos";					//mysql tabela de Produtos
+$mysql_metafilial_table = $mysql_db_gvendas.".metafilial";				//mysql tabela de Metas por Filial
+$mysql_metavendedor_table = $mysql_db_gvendas.".metavendedor";			//mysql tabela de Metas por Vendedor
+$mysql_metacliente_table = $mysql_db_gvendas.".metacliente";			//mysql tabela de Metas por Cliente
+$mysql_metaclientetemp_table = $mysql_db_gvendas.".metaclientetemp";    //mysql tabela de Metas por Cliente temp
+$mysql_metadistribuidor_table = $mysql_db_gvendas.".metadistribuidor";	//mysql tabela de Metas por Distribuidor
+$mysql_metarenta_table = $mysql_db_gvendas.".metarentabilidade";		//mysql tabela de Metas rentabilidade
+$mysql_metarentatemp_table = $mysql_db_gvendas.".metarentatemp";		//mysql tabela de Metas rentabilidade temp
+$mysql_metamotivo_table = $mysql_db_gvendas.".metamotivo";				//mysql tabela de Metas rentabilidade
+$mysql_metalog_table = $mysql_db_gvendas.".metalog";					//mysql tabela de Metas rentabilidade
+$mysql_metasgerais_table = $mysql_db_gvendas.".metasgerais";			//mysql tabela de Metas de Comissão, Despesas, etc..
+$mysql_metavendedortemp_table = $mysql_db_gvendas.".metavendedortemp";
+$mysql_metafilialtemp_table = $mysql_db_gvendas.".metafilialtemp";
+$mysql_grupocliente_table = $mysql_db_gvendas.".grupocliente";			//mysql tabela de Grupo de Clientes (Canais)
+$mysql_grupopreco_table = $mysql_db_gvendas.".grupopreco";				//mysql tabela de Grupo de Precos
+$mysql_grupoproduto_table = $mysql_db_gvendas.".grupoproduto";			//mysql tabela de Grupo de Produtos
+$mysql_vendas_table = $mysql_db_gvendas.".vendas";						//mysql tabela de Vendas
+$mysql_clientes_table = $mysql_db_gvendas.".clientes";					//mysql tabela de Clientes
+$mysql_meiopg_table = $mysql_db_gvendas.".meiopg";						//mysql tabela de Clientes
+$mysql_condpg_table = $mysql_db_gvendas.".condpg";						//mysql tabela de Clientes
+$mysql_atualizacao_table = $mysql_db_gvendas.".atualizacao";			//mysql tabela de Atualizações
+$mysql_tipofatura_table = $mysql_db_gvendas.".tipofatura";				//mysql tabela de Tipo de Faturas
+$mysql_despicms_table = $mysql_db_gvendas.".despicms";					//mysql tabela de despicms
+$mysql_tipolinha_table = $mysql_db_gvendas.".tipolinha";				//mysql tabela de tipolinha
+$mysql_centros_table = $mysql_db_gvendas.".centros";					//mysql tabela de tipolinha
+$mysql_bonifica_table = $mysql_db_gvendas.".bonificacao";				//mysql tabela de tipolinha
+
+$mysql_fabrica_table = $mysql_db_gvendas.".fabricaproduto";				//mysql tabela de Fabrica por produto
+$mysql_fabricacusto_table = $mysql_db_gvendas.".fabricacusto";			//mysql tabela de Fabrica por produto
+
+$mysql_pesquisa_table = $mysql_db_gvendas.".pesquisa";					//mysql tabela de Pesquisa
+$mysql_concorrentes_table = $mysql_db_gvendas.".concorrentes";			//mysql tabela de Concorrentes
+$mysql_limites_table = $mysql_db_gvendas.".pesqlimite";					//mysql tabela de Limite de Pesquisa
+$mysql_pesqindice_table = $mysql_db_gvendas.".pesqindice";				//mysql tabela de Limite de Pesquisa
+
+$mysql_base_table = $mysql_db_gvendas.".base";							//mysql tabela de Litragem
+$mysql_litragem_table = $mysql_db_gvendas.".litragem";					//mysql tabela de Litragem
+
+$mysql_tipocolaborador_table = $mysql_db_gvendas.".tipocolaborador";	//mysql tabela de Custo
+$mysql_ppontos_table = $mysql_db_gvendas.".premiacaopontos";			//mysql tabela de Custo
+$mysql_pporcentagem_table = $mysql_db_gvendas.".premiacaoporcentagem";			//mysql tabela de Custo
+$mysql_pindicadores_table = $mysql_db_gvendas.".premiacaoindicadores";			//mysql tabela de Custo
+$mysql_pinadimplencia_table = $mysql_db_gvendas.".premiacaoinadimplencia";			//mysql tabela de Custo
+$mysql_bonuspremiacao_table = $mysql_db_gvendas.".bonuspremiacao";			//mysql tabela de Custo
+$mysql_premiacaoavaliacao_table = $mysql_db_gvendas.".premiacaoavaliacao";			//mysql tabela de Custo
+
+$mysql_precocusto_table = $mysql_db_gvendas.".precocusto";			//mysql tabela de Custo
+
+$mysql_statuscarga_table = $mysql_db_gvendas.".statuscarga";			//mysql tabela de Movto.Status carga
+$mysql_statusc_table = $mysql_db_gvendas.".statusc";			       //mysql tabela de Status carga
+$mysql_status_table = $mysql_db_gvendas.".status";			           //mysql tabela de Status atendimento
+
+
+// Pedidos Danone - Clientes Broker
+
+$mysql_danonecab_table = $mysql_db_gvendas.".pedidos_cab_danone";
+$mysql_danoneitem_table = $mysql_db_gvendas.".pedidos_itens_danone";
+
+
+// Palmtop
+
+$mysql_palmcab_table = $mysql_db_gvendas.".palmtop_cab";                      //mysql tabela de Custo
+$mysql_palmitem_table = $mysql_db_gvendas.".palmtop_item";                      //mysql tabela de Custo
+$mysql_palmmot_table = $mysql_db_gvendas.".palmtop_motnaovenda";                      //mysql tabela de Custo
+$mysql_motnaovenda_table = $mysql_db_gvendas.".motivonaovenda";   
+$mysql_cemmeta_table = $mysql_db_gvendas.".cem_meta";
+
+
+// Pedidos
+
+$mysql_pedidos_table = $mysql_db_gvendas.".pedidos";					//mysql tabela de Pedidos
+$mysql_motivorecusa_table = $mysql_db_gvendas.".motivorecusa";			//mysql tabela de Motivo de Recusa
+
+//custo
+
+$mysql_custo_table = $mysql_db_gvendas.".custo";			//mysql tabela de Custo
+
+// Resumos
+
+$mysql_resumogeral_table    = $mysql_db_gvendas.".resumogeral";			//mysql tabela de Resumo Geral
+$mysql_resumoprazo_table    = $mysql_db_gvendas.".resumoprazo";			//mysql tabela de Resumo com prazo
+$mysql_resumopedido_table   = $mysql_db_gvendas.".resumopedido";			//mysql tabela de Resumo de pedidos
+$mysql_resumogerotina_table = $mysql_db_gvendas.".resumogerotina";		//mysql tabela de Resumo de gerotina
+$mysql_resumoimpostos_table = $mysql_db_gvendas.".resumoimpostos";		//mysql tabela de Resumo de gerotina
+
+
+$mysql_olimpiadas_table   = $mysql_db_gvendas.".olimpiadas";			//mysql tabela de Resumo de pedidos
+$mysql_olimpiadasb_table  = $mysql_db_gvendas.".olimpiadasblog";			//mysql tabela de Resumo de pedidos
+$mysql_nomefantasia_table = $mysql_db_gvendas.".filialfantasia";		//mysql tabela de Resumo de gerotina
+
+
+// extranet
+
+$mysql_ext_table       = "phpshop.bonificacao";			//mysql tabela de Resumo de pedidos
+$mysql_extp_table      = "phpshop.bonificacaopro";		//mysql tabela de Resumo de gerotina
+$mysql_bmotivos_table  = $mysql_db_gvendas.".bonimotivos";		//mysql tabela de Resumo de gerotina
+$mysql_bmotivosf_table = $mysql_db_gvendas.".bonimotivosfilial";		//mysql tabela de Resumo de gerotina
+
+// Plano de vendas
+
+
+$mysql_pvicmscusto_table = "planovendas.icmscustomizacao";			//mysql tabela de Resumo de pedidos
+$mysql_pvproducao_table  = "planovendas.producao";			//mysql tabela de Resumo de pedidos
+$mysql_pvicmscanal_table = "planovendas.icmscanal";			//mysql tabela de Resumo de pedidos
+$mysql_pvicms_table		 = "planovendas.icms";			//mysql tabela de Resumo de pedidos
+$mysql_pvppcusto_table	 = "planovendas.politicacustomizacao";			//mysql tabela de Resumo de pedidos
+$mysql_pvpp_table		 = "planovendas.politicapreco"; 
+$mysql_pvpv_table		 = "planovendas.planodevenda";			//mysql tabela de Resumo de pedidos
+$mysql_pvpvmeta_table	 = "planovendas.planodevendameta"; 
+
+// Ação de Vendas
+
+$mysql_movprocesso_table      = $mysql_db_acao.".movprocesso";		 
+$mysql_processopartes_table   = $mysql_db_acao.".processo_partes";	 
+$mysql_processopatronos_table = $mysql_db_acao.".processo_patronos";
+$mysql_processos_table        = $mysql_db_acao.".processos";			
+$mysql_tipoacao_table         = $mysql_db_acao.".tipoacao";			
+
+/**************************************************************************************************************/
+/**************************************************************************************************************/
+$bonificacao = " not in ('ERG','ZD1B','ZD2B','ZDEG','ZDOA','ZPER','ZPRO','ZRG','ZDPE','ZVTF')";
+$bonificacao = " not in ('ERG','ZRG','ZD1B','ED1B','ZD2B','ED2B','ZDEG','EDEG','ZDOA','EDOA','ZPER','EPER','ZPRO','EPRO','ZVTF','EVTF')";
+$bonificacao2 = " in ('ERG','ZD1B','ZD2B','ZDEG','ZDOA','ZPER','ZPRO','ZDPE','ZRG')";
+
+$classes = " in ('41101019','41106005','41106019','41106036','41106037','41109001','41109002','41109003','41109004','41109005','41109006','41109007','41109008','41109009','41109010','41109011','41109012','41109013','41109014','41109015','41109016','41106033','41106034')";
+?>

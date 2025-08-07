@@ -1,0 +1,213 @@
+<?php
+
+/***************************************************************************************************
+**	file: login.php
+**
+**	This file will check to see if the user is logged in already via a cookie...if not,
+**	logged in, it will do the login script and set the cookie so the user can login.
+**	The cookie will be checked against all of the remaining pages that require login.php.
+**
+**	Note:  This file needs to be required of all pages that require a user to be logged in.
+**
+***************************************************************************************************
+	**
+	**	author:	JD Bottorf
+	**	date:	08/10/01
+	*********************************************************************************************/
+
+//set the start time so we can calculate how long it takes to load the page.
+$mtime1 = explode(" ", microtime());
+$starttime = $mtime1[0] + $mtime1[1];
+
+$url = sprintf("%s%s%s","http://",$HTTP_HOST,$REQUEST_URI);
+$url = strrev(strstr(strrev($url),'/'));
+require_once "config.php";
+require_once "common.php";
+
+@session_start();
+
+//if submit has been hit, set the cookie and reload the page immediately so the cookie takes effect.
+
+if(isset($login)) {
+
+	$conectar = @fsockopen("pop.valedourado.com.br", 110, $errno, $errstr, 15);
+//	$conectar = @fsockopen("200.234.205.143", 110, $errno, $errstr, 15);
+// descomentar a linha abaixo para direto
+/*
+	if (!$conectar) {
+		$erro = "Problema com o servidor de e-mail . Aguarde um momento !";    
+	} else {
+		$buffer = chop(fgets($conectar,1024));
+		if(ereg("^(\\+OK)",$buffer)) echo "";
+
+		fwrite($conectar,"USER $user@valedourado.com.br\r\n");
+		$buffer = chop(fgets($conectar,1024));
+		if(ereg("^(\\+OK)",$buffer)) echo ""; else unset($user);
+
+		fwrite($conectar,"PASS $password\r\n");
+//echo '<br>'.'>'.md5($password).'<'.'<br>';
+    	$buffer = chop(fgets($conectar,1024));
+		if(ereg("^(\\+OK)",$buffer)) echo ""; else unset($password);
+// descomentar a linha abaixo para direto
+*/
+
+		if (isset($password)) {
+			if (!checkUser($user, md5($password))) {
+				$sql = "select * from $mysql_users_table where login = '$user'";
+				execsql($sql);
+				$result = execsql($sql);
+				$row = mysql_fetch_array($result);
+				if ($row[0] == NULL) {
+					$sql = "insert into $mysql_users_table VALUES ('','','$user','$user@valedourado.com.br','".md5($password)."','','','default','','','','','1','1')";
+					execsql($sql);
+				} else {
+					$sql = "update $mysql_users_table set password = '".md5($password)."', email = '$user@valedourado.com.br' where login = '$user'";
+					execsql($sql);
+				}
+			}
+		}
+
+		if(checkUser($user, md5($password))){
+			$permissao = getpermissao($user);
+			$cookie_name = $user;
+			session_register ("cookie_name");
+			$enc_pwd = md5($password);
+			$pwd = $password;
+			session_register ("password");
+			session_register ("enc_pwd");
+			session_register ("permissao");
+			$referer = $HTTP_REFERER;
+
+			$info = getuserinfo(getUserId($cookie_name));
+			if (($info['nome'] == '') or ($info['ramal'] == '')) {
+				header("Location: ../pessoal.php".sid);
+			} else {
+				execsql("INSERT INTO $mysql_umdlog_table VALUES ('".getenv ("REMOTE_ADDR")."','','','','".date('Y-m-d h:i:s')."','$user','$referer')");
+				header("Location: $referer?".sid);
+			}
+           
+
+
+
+			if(!Permissao($transacao,$permissao)){
+				require_once "style.php";
+				InfoTransacao($transacao);
+				exit;
+			}
+		} else {
+			$erro = "Seu usuário e/ou senha está(ão) incorreto(s).<br>".$user;
+		}
+// Comentar a linha abaixo para direto
+//	} 
+}
+//check the cookie first.
+if(!isCookieSet()){
+
+if ($transacao != 'LIVRE') 
+
+?>
+<html>
+<head>
+<title>Portal - Valedourado</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../Intranet_Style.css" rel="stylesheet" type="text/css">
+</head>
+
+<body leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marginwidth="0" marginheight="0"><center>
+<?include "cabecalho.php";?>
+<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+  <TR valign=top> 
+    <TD colspan=8>&nbsp;</TD>
+  </TR>
+  <TR valign=top> 
+    <TD colspan=8>&nbsp;</TD>
+  </TR>
+  <TR valign=top> 
+    <TD>&nbsp;</TD>
+    <TD colspan="6"><div align="center">Digite seu usu&aacute;rio e senha para 
+        efetuar login no sistema.</div></TD>
+    <TD>&nbsp;</TD>
+  </TR>
+  <TR valign=top> 
+    <TD>&nbsp;</TD>
+    <TD colspan="6"><div align="center"></div></TD>
+    <TD>&nbsp;</TD>
+  </TR>
+  <TR valign=top> 
+    <TD>&nbsp;</TD>
+    <TD colspan="6"> <center>
+        <font size=+1 color="red"> 
+        <?=$erro?>
+        </font> 
+      </center>
+	  <form method=post>
+      <table width="150" border="0" align="center" cellpadding="0" cellspacing="2">
+        <tr> 
+          <td>Usuário:</td>
+          <td><input name="user" type="text" size="20"></td>
+        </tr>
+        <tr> 
+          <td>Senha:</td>
+          <td><input name="password" type="password" size="20"></td>
+        </tr>
+        <tr> 
+          <td colspan="2"><center>
+              <input type=submit name=login value=Enviar>
+            </center></td>
+        </tr>
+      </table>
+	  </form>
+	  </TD>
+    <TD>&nbsp;</TD>
+  </TR>
+  <TR valign=top> 
+    <TD>&nbsp;</TD>
+    <TD colspan="6">&nbsp;</TD>
+    <TD>&nbsp;</TD>
+  </TR>
+  <TR valign=top> 
+    <TD>&nbsp;</TD>
+    <TD colspan="6">&nbsp;</TD>
+    <TD>&nbsp;</TD>
+  </TR>
+  <TR valign=top> 
+    <TD colspan="8">&nbsp;<img src="/images/pixelcinza.gif" width="100%" height="1"></TD>
+  </TR>
+</TABLE>
+</center>
+</body>
+</html>
+
+<?
+if($enable_stats == 'on'){
+	$mtime2 = explode(" ", microtime());
+	$endtime = $mtime2[0] + $mtime2[1];
+	$totaltime = $endtime - $starttime;
+	$totaltime = number_format($totaltime, 7);
+
+	echo "<br><center><font size=1>$helpdesk_name<br>";
+	echo "Gerência de Tecnologia da Infomação - </b> v$version<br>";
+	echo "Processado em: $totaltime segundos, $queries Queries<br>";
+	echo "</font> </center>";
+}
+	exit;
+					
+					
+}else{
+
+		$info = getuserinfo(getUserId($cookie_name));
+		if (($info['nome'] == '') or ($info['ramal'] == '')) {
+			 if ($PHP_SELF != '/pessoal.php') {
+				header("Location: ../pessoal.php".sid);
+			 } 
+		}
+
+		if(!Permissao($transacao,$permissao)) {
+			require_once "style.php";
+			InfoTransacao($transacao);
+			exit;
+		}
+
+}
+
+?>

@@ -1,0 +1,481 @@
+<?php
+include "cabecalho.php";
+require_once "../../common/config.financeiro.php";
+require_once "../../common/config.prestconta.php";
+require_once "../../common/config.gvendas.php";
+
+//set the start time so we can calculate how long it takes to load the page.
+$mtime1 = explode(" ", microtime());
+$starttime = $mtime1[0] + $mtime1[1];
+
+$transacao = "FIRAGELIST";
+$dd = substr($inforelat[data],0,2);
+$mm = substr($inforelat[data],3,2);
+$aa = substr($inforelat[data],6,4);
+$dt1 = $aa.$mm.$dd;
+?>
+<link href="../../Intranet_Style.css" rel="stylesheet" type="text/css">
+<table width="870" border="0" align="center">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="tdcabecalho" align="center" font size="3">Aging-List<br></td>
+  </tr>
+  <tr>
+   <td align="center"  class="tdfundo">
+	  <table width="100%" border="0">
+        <tr class="tdcabecalho1"> 
+          <td align="center"><font size="0"><b>Data</b></td>
+		  <td align="center"><font size="0"><b>A Vencer</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 30 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 60 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 90 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 180 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas acima de 180 dd</b></td>
+          <td align="center"><font size="0"><b>Total tit.Vencidos</b></td>
+          <td align="center"><font size="0"><b>Total</b></td>
+	    </tr>
+<? $i = 0;
+$pl = 0;
+$lin = 0;
+$result = execsql("SELECT * from $mysql_aging_list_table a where $where order by data desc");
+while($pos_atual = mysql_fetch_row($result)){
+	    if (substr($pos_atual[0],8,2) == '01' || $lin < 6){
+		$lin ++;
+	    $tt_dia1 = 1;
+	    if ($p1 == 0) {
+			$pl ++;
+   //        $dt1 = substr($pos_atual[0],0,07).'-01';
+	    	$reg1 = mysql_fetch_row(execsql("SELECT * from $mysql_aging_list_table where data = '".$dt1."' AND empresa = '".$pos_atual[1]."'"));
+			$tt_dia1 = +$reg1[4]+$reg1[5]+$reg1[6]+$reg1[7]+$reg1[8];
+		}
+	    $tt = $pos_atual[3]+$pos_atual[4]+$pos_atual[5]+$pos_atual[6]+$pos_atual[7]+$pos_atual[8];
+        $dataFinal = mktime(24*(-1), 0, 0, substr($pos_atual[0],5,2), substr($pos_atual[0],8,2), substr($pos_atual[0],0,4));
+        $data2 = date('Y-m-d',$dataFinal);
+        $pos_ant = mysql_fetch_row(execsql("SELECT * from $mysql_aging_list_table a where data = '".$data2."' order by data"));
+		$tb = (($pos_atual[3]+$pos_atual[2])-($pos_ant[3]+$pos_ant[2]))+
+			  ($pos_atual[4]-$pos_ant[4])+
+			  ($pos_atual[5]-$pos_ant[5])+
+			  ($pos_atual[6]-$pos_ant[6])+
+		      ($pos_atual[7]-$pos_ant[7])+
+			  ($pos_atual[8]-$pos_ant[8]);
+
+		$ts = ($pos_atual[3]+$pos_atual[2]) +
+              ($pos_atual[4]) +
+              ($pos_atual[5]) +
+              ($pos_atual[6]) +
+			  ($pos_atual[7]) +
+			  ($pos_atual[8]);
+		$te += $pos_atual[2];
+		$saldo1 = $pos_atual[3]+$pos_atual[2];
+		$saldo2 = $pos_ant[3]+$pos_ant[2];
+		$tv = $pos_atual[4]+$pos_atual[5]+$pos_atual[6]+$pos_atual[7]+$pos_atual[8];
+		echo "
+        <tr class=\"tdcabecalho\" > 
+		  <td align=\"left\"><font size=\"1\">".substr($pos_atual[0],8,2).'.'.substr($pos_atual[0],5,2).'.'.substr($pos_atual[0],0,4)."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($saldo1,'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[4],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[5],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[6],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[7],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[8],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($tv,'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($ts,'2',',','.')."</td>
+		</tr>";
+/*
+		echo "
+        <tr class=\"tdsubcabecalho1\" > 
+		  <td align=\"right\"><font size=\"1\">".substr($pos_atual[0],8,2).'.'.substr($pos_atual[0],5,2).'.'.substr($pos_atual[0],0,4)."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[2],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[3],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[4],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[5],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[6],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[7],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($tt,'2',',','.')."</td>
+		</tr>";
+
+		echo "
+        <tr class=\"tdsubcabecalho2\" > 
+		  <td align=\"center\"><font size=\"1\">Entrada</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[1],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">&nbsp;</td>
+          <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($te,'2',',','.')."</td>
+		</tr>";
+*/
+
+if ($reg1[4] == 0) $reg1[4] = 0.000001;
+if ($reg1[5] == 0) $reg1[5] = 0.000001;
+if ($reg1[6] == 0) $reg1[6] = 0.000001;
+if ($reg1[7] == 0) $reg1[7] = 0.000001;
+if ($reg1[8] == 0) $reg1[8] = 0.000001;
+if ($tt_dia1 == 0) $tt_dia1 = 0.000001;
+//       if ($pos_ant[2] > 0) {
+		echo "
+        <tr class=\"tdsubcabecalho2\" > 
+		  <td align=\"center\"><font size=\"1\">Variação</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+          <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[4]-$reg1[4])*100/$reg1[4]),'2',',','.')."%</td>
+          <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[5]-$reg1[5])*100/$reg1[5]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[6]-$reg1[6])*100/$reg1[6]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[7]-$reg1[7])*100/$reg1[7]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[8]-$reg1[8])*100/$reg1[8]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($tv-$tt_dia1)*100/$tt_dia1),'2',',','.')."%</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		</tr>";
+//		}
+        $tb = 0;
+		$ts = 0;
+ }		 
+}
+ ?>
+	  </table>
+   </td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>
+<?
+// *********************************************************************************cb
+?>
+<link href="../../Intranet_Style.css" rel="stylesheet" type="text/css">
+
+<table width="870" border="0" align="center">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="tdcabecalho" align="center" font size="3">Aging-List - Cobrança<br></td>
+  </tr>
+  <tr>
+   <td align="center"  class="tdfundo">
+	  <table width="100%" border="0">
+        <tr class="tdcabecalho1"> 
+          <td align="center"><font size="0"><b>Data</b></td>
+		  <td align="center"><font size="0"><b>A Vencer</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 30 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 60 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 90 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 180 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas acima de 180 dd</b></td>
+          <td align="center"><font size="0"><b>Total tit.Vencidos</b></td>
+          <td align="center"><font size="0"><b>Total</b></td>
+	    </tr>
+<? $i = 0;
+$pl = 0;
+$lin = 0;
+$result = execsql("SELECT * from $mysql_aging_list2_table a where $where order by data desc");
+while($pos_atual = mysql_fetch_row($result)){
+	    if (substr($pos_atual[0],8,2) == '01' || $lin < 6){
+		$lin ++;
+	    $tt_dia1 = 1;
+	    if ($p1 == 0) {
+			$pl ++;
+   //        $dt1 = substr($pos_atual[0],0,07).'-01';
+	    	$reg1 = mysql_fetch_row(execsql("SELECT * from $mysql_aging_list2_table where data = '".$dt1."' AND empresa = '".$pos_atual[1]."'"));
+			$tt_dia1 = +$reg1[4]+$reg1[5]+$reg1[6]+$reg1[7]+$reg1[8];
+		}
+	    $tt = $pos_atual[3]+$pos_atual[4]+$pos_atual[5]+$pos_atual[6]+$pos_atual[7]+$pos_atual[8];
+        $dataFinal = mktime(24*(-1), 0, 0, substr($pos_atual[0],5,2), substr($pos_atual[0],8,2), substr($pos_atual[0],0,4));
+        $data2 = date('Y-m-d',$dataFinal);
+        $pos_ant = mysql_fetch_row(execsql("SELECT * from $mysql_aging_list2_table a where data = '".$data2."' order by data"));
+		$tb = (($pos_atual[3]+$pos_atual[2])-($pos_ant[3]+$pos_ant[2]))+
+			  ($pos_atual[4]-$pos_ant[4])+
+			  ($pos_atual[5]-$pos_ant[5])+
+			  ($pos_atual[6]-$pos_ant[6])+
+		      ($pos_atual[7]-$pos_ant[7])+
+			  ($pos_atual[8]-$pos_ant[8]);
+
+		$ts = ($pos_atual[3]+$pos_atual[2]) +
+              ($pos_atual[4]) +
+              ($pos_atual[5]) +
+              ($pos_atual[6]) +
+			  ($pos_atual[7]) +
+			  ($pos_atual[8]);
+		$te += $pos_atual[2];
+		$saldo1 = $pos_atual[3]+$pos_atual[2];
+		$saldo2 = $pos_ant[3]+$pos_ant[2];
+		$tv = $pos_atual[4]+$pos_atual[5]+$pos_atual[6]+$pos_atual[7]+$pos_atual[8];
+		echo "
+        <tr class=\"tdcabecalho\" > 
+		  <td align=\"left\"><font size=\"1\">".substr($pos_atual[0],8,2).'.'.substr($pos_atual[0],5,2).'.'.substr($pos_atual[0],0,4)."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($saldo1,'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[4],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[5],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[6],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[7],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[8],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($tv,'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($ts,'2',',','.')."</td>
+		</tr>";
+/*
+		echo "
+        <tr class=\"tdsubcabecalho1\" > 
+		  <td align=\"right\"><font size=\"1\">".substr($pos_atual[0],8,2).'.'.substr($pos_atual[0],5,2).'.'.substr($pos_atual[0],0,4)."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[2],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[3],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[4],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[5],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[6],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[7],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($tt,'2',',','.')."</td>
+		</tr>";
+
+		echo "
+        <tr class=\"tdsubcabecalho2\" > 
+		  <td align=\"center\"><font size=\"1\">Entrada</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[1],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">&nbsp;</td>
+          <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($te,'2',',','.')."</td>
+		</tr>";
+*/
+if ($reg1[4] == 0) $reg1[4] = 0.000001;
+if ($reg1[5] == 0) $reg1[5] = 0.000001;
+if ($reg1[6] == 0) $reg1[6] = 0.000001;
+if ($reg1[7] == 0) $reg1[7] = 0.000001;
+if ($reg1[8] == 0) $reg1[8] = 0.000001;
+if ($tt_dia1 == 0) $tt_dia1 = 0.000001;
+
+
+
+//       if ($pos_ant[2] > 0) {
+		echo "
+        <tr class=\"tdsubcabecalho2\" > 
+		  <td align=\"center\"><font size=\"1\">Variação</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+          <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[4]-$reg1[4])*100/$reg1[4]),'2',',','.')."%</td>
+          <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[5]-$reg1[5])*100/$reg1[5]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[6]-$reg1[6])*100/$reg1[6]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[7]-$reg1[7])*100/$reg1[7]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[8]-$reg1[8])*100/$reg1[8]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($tv-$tt_dia1)*100/$tt_dia1),'2',',','.')."%</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		</tr>";
+//		}
+        $tb = 0;
+		$ts = 0;
+ }		 
+}
+ ?>
+	  </table>
+   </td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>
+<?
+
+// ******************************************************************************** gr
+?>
+<link href="../../Intranet_Style.css" rel="stylesheet" type="text/css">
+
+<table width="870" border="0" align="center">
+  <tr> 
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td class="tdcabecalho" align="center" font size="3">Aging-List - Grandes Redes <br></td>
+  </tr>
+  <tr>
+   <td align="center"  class="tdfundo">
+	  <table width="100%" border="0">
+        <tr class="tdcabecalho1"> 
+          <td align="center"><font size="0"><b>Data</b></td>
+		  <td align="center"><font size="0"><b>A Vencer</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 30 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 60 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 90 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas até 180 dd</b></td>
+          <td align="center"><font size="0"><b>Vencidas acima de 180 dd</b></td>
+          <td align="center"><font size="0"><b>Total tit.Vencidos</b></td>
+          <td align="center"><font size="0"><b>Total</b></td>
+	    </tr>
+<? $i = 0;
+$pl = 0;
+$lin = 0;
+$result = execsql("SELECT * from $mysql_aging_list3_table a where $where order by data desc");
+while($pos_atual = mysql_fetch_row($result)){
+	    if (substr($pos_atual[0],8,2) == '01' || $lin < 6){
+		$lin ++;
+	    $tt_dia1 = 1;
+	    if ($p1 == 0) {
+			$pl ++;
+   //        $dt1 = substr($pos_atual[0],0,07).'-01';
+	    	$reg1 = mysql_fetch_row(execsql("SELECT * from $mysql_aging_list3_table where data = '".$dt1."' AND empresa = '".$pos_atual[1]."'"));
+			$tt_dia1 = +$reg1[4]+$reg1[5]+$reg1[6]+$reg1[7]+$reg1[8];
+		}
+	    $tt = $pos_atual[3]+$pos_atual[4]+$pos_atual[5]+$pos_atual[6]+$pos_atual[7]+$pos_atual[8];
+        $dataFinal = mktime(24*(-1), 0, 0, substr($pos_atual[0],5,2), substr($pos_atual[0],8,2), substr($pos_atual[0],0,4));
+        $data2 = date('Y-m-d',$dataFinal);
+        $pos_ant = mysql_fetch_row(execsql("SELECT * from $mysql_aging_list3_table a where data = '".$data2."' order by data"));
+		$tb = (($pos_atual[3]+$pos_atual[2])-($pos_ant[3]+$pos_ant[2]))+
+			  ($pos_atual[4]-$pos_ant[4])+
+			  ($pos_atual[5]-$pos_ant[5])+
+			  ($pos_atual[6]-$pos_ant[6])+
+		      ($pos_atual[7]-$pos_ant[7])+
+			  ($pos_atual[8]-$pos_ant[8]);
+
+		$ts = ($pos_atual[3]+$pos_atual[2]) +
+              ($pos_atual[4]) +
+              ($pos_atual[5]) +
+              ($pos_atual[6]) +
+			  ($pos_atual[7]) +
+			  ($pos_atual[8]);
+		$te += $pos_atual[2];
+		$saldo1 = $pos_atual[3]+$pos_atual[2];
+		$saldo2 = $pos_ant[3]+$pos_ant[2];
+		$tv = $pos_atual[4]+$pos_atual[5]+$pos_atual[6]+$pos_atual[7]+$pos_atual[8];
+		echo "
+        <tr class=\"tdcabecalho\" > 
+		  <td align=\"left\"><font size=\"1\">".substr($pos_atual[0],8,2).'.'.substr($pos_atual[0],5,2).'.'.substr($pos_atual[0],0,4)."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($saldo1,'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[4],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[5],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[6],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[7],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[8],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($tv,'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($ts,'2',',','.')."</td>
+		</tr>";
+/*
+		echo "
+        <tr class=\"tdsubcabecalho1\" > 
+		  <td align=\"right\"><font size=\"1\">".substr($pos_atual[0],8,2).'.'.substr($pos_atual[0],5,2).'.'.substr($pos_atual[0],0,4)."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[2],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[3],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[4],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[5],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[6],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($pos_atual[7],'2',',','.')."</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($tt,'2',',','.')."</td>
+		</tr>";
+
+		echo "
+        <tr class=\"tdsubcabecalho2\" > 
+		  <td align=\"center\"><font size=\"1\">Entrada</td>
+          <td align=\"right\"><font size=\"1\">".number_format($pos_atual[1],'2',',','.')."</td>
+          <td align=\"right\"><font size=\"1\">&nbsp;</td>
+          <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		  <td align=\"right\"><font size=\"1\">".number_format($te,'2',',','.')."</td>
+		</tr>";
+*/
+if ($reg1[4] == 0) $reg1[4] = 0.000001;
+if ($reg1[5] == 0) $reg1[5] = 0.000001;
+if ($reg1[6] == 0) $reg1[6] = 0.000001;
+if ($reg1[7] == 0) $reg1[7] = 0.000001;
+if ($reg1[8] == 0) $reg1[8] = 0.000001;
+if ($tt_dia1 == 0) $tt_dia1 = 0.000001;
+
+//       if ($pos_ant[2] > 0) {
+		echo "
+        <tr class=\"tdsubcabecalho2\" > 
+		  <td align=\"center\"><font size=\"1\">Variação</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+          <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[4]-$reg1[4])*100/$reg1[4]),'2',',','.')."%</td>
+          <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[5]-$reg1[5])*100/$reg1[5]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[6]-$reg1[6])*100/$reg1[6]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[7]-$reg1[7])*100/$reg1[7]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($pos_atual[8]-$reg1[8])*100/$reg1[8]),'2',',','.')."%</td>
+		  <td align=\"center\"><font size=\"1\">".number_format((($tv-$tt_dia1)*100/$tt_dia1),'2',',','.')."%</td>
+		  <td align=\"right\"><font size=\"1\">&nbsp;</td>
+		</tr>";
+//		}
+        $tb = 0;
+		$ts = 0;
+ }		 
+}
+ ?>
+	  </table>
+   </td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+</body>
+</html>
+<?
+
+//
+if($enable_stats == 'on'){
+	$mtime2 = explode(" ", microtime());
+	$endtime = $mtime2[0] + $mtime2[1];
+	$totaltime = $endtime - $starttime;
+	$totaltime = number_format($totaltime, 7);
+
+	echo "<br><center><font size=1>$helpdesk_name<br>";
+	echo "Gerência de Tecnologia da Infomação - </b> v$version<br>";
+	echo "Processado em: $totaltime segundos, $queries Queries<br>";
+	echo "</font> </center>";
+
+}
+?>
+
+
+<script language="javascript1.2">
+// You probably should factor this out to a .js file
+function toggleRows(elm) {
+ var rows = document.getElementsByTagName("TR");
+ elm.style.backgroundImage = "url(/branding/images/sstree/folder-closed.gif)";
+ var newDisplay = "none";
+ var thisID = elm.parentNode.parentNode.parentNode.id + "-";
+ var matchDirectChildrenOnly = false;
+ for (var i = 0; i < rows.length; i++) {
+   var r = rows[i];
+   if (matchStart(r.id, thisID, matchDirectChildrenOnly)) {
+    if (r.style.display == "none") {
+     if (document.all) newDisplay = "block"; //IE4+ specific code
+     else newDisplay = "table-row"; //Netscape and Mozilla
+     elm.style.backgroundImage = "url(/branding/images/sstree/folder-open.gif)";
+    }
+    break;
+   }
+ }
+ if (newDisplay != "none") {
+  matchDirectChildrenOnly = true;
+ }
+ for (var j = 0; j < rows.length; j++) {
+   var s = rows[j];
+   if (matchStart(s.id, thisID, matchDirectChildrenOnly)) {
+     s.style.display = newDisplay;
+     s.style.backgroundImage = "url(/branding/images/sstree/folder-closed.gif)";
+   }
+ }
+}
+
+function matchStart(target, pattern, matchDirectChildrenOnly) {
+ var pos = target.indexOf(pattern);
+ if (pos != 0) return false;
+ if (!matchDirectChildrenOnly) return true;
+ if (target.slice(pos + pattern.length, target.length).indexOf("-") >= 0) return false;
+ return true;
+}
+
+function collapseAllRows() {
+ var rows = document.getElementsByTagName("TR");
+ for (var j = 0; j < rows.length; j++) {
+   var r = rows[j];
+   if (r.id.indexOf("-") >= 0) {
+     r.style.display = "none";    
+   }
+ }
+}
+</script>

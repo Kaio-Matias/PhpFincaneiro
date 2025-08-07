@@ -1,0 +1,449 @@
+<?php
+
+if (!isset($transacao)) { exit(); }
+
+$mtime1 = explode(" ", microtime());
+$starttime = $mtime1[0] + $mtime1[1];
+
+include "cabecalhofi.php";
+include "../common/data.php";
+session_unregister ("where");
+unset($where);
+session_unregister ("inforelat");
+unset($inforelat);
+session_unregister ("datawhere");
+unset($datawhere);
+
+?>
+<LINK href="../common/calendar.css" type="text/css" rel=stylesheet>
+<SCRIPT src="../common/calendar.js" type="text/javascript"></SCRIPT>
+
+<SCRIPT LANGUAGE="JavaScript">
+function windows(myurl,tela) {
+	var newWindow;
+	var props = 'scrollBars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,width=780,height=500';
+	newWindow = window.open(myurl, tela, props);
+}
+function reload(url) {
+	 location = url;
+}
+</script>
+<?
+// Atenção...
+//		codparametro = 13, só deverá aparecer quando o usuário estiver com permissão para ver o mesmo.
+
+// Inicializando
+$fp = new FormProcessor("../common/relatorios/");
+
+// Import the needed elements
+$fp->importElements(array(FPText, FPTextField, FPSelect, FPSelectPlus, FPSubmitButton, FPImageButton, FPDateField, FPOneDateField));
+$fp->importLayouts(array( FPColLayout, FPGroup, FPRowLayout ));
+$fp->importWrappers(array(FPLeftTitleWrapper ));
+
+$row = mysql_fetch_row(execsql("select descricao from $mysql_autorizacoes_table where cod_autorizacao = '$transacao'"));
+
+// Create the form object
+$myForm = new FPForm(array(
+    title => $row[0],
+    name => 'myForm',
+    action => $PHP_SELF,
+    display_outer_table => true,
+    refine_owners => true,
+    table_align => 'center',
+    table_width => '700'
+));
+
+$leftWrapper = new FPLeftTitleWrapper(array());
+
+$sql = "select a.elemento, a.codparametro, c.campo, c.valor, b.qntlinha from $mysql_parametros_table a, $mysql_relatorios_table b, $mysql_relatelemento_table c where b.codtransacao = '$transacao' and b.codparametro = a.codparametro and b.codtransacao = c.codtransacao and b.codparametro = c.codparametro order by b.rank, b.codparametro";
+$result = execsql($sql);
+$i = 0; $ii = 0; $ilinha = 0;
+
+$linha[$ilinha] =
+            new FPRowLayout(array(
+            table_align => right,
+            table_padding => 10,
+			table_width=> '100',
+            elements => array(
+			    new FPText(array(text => '<a href="javascript:windows(\'variantes.php?transacao='.$transacao.'&chamar=sim\')"><img src="../images/btvariantes.gif" border="0"></a>')),
+            )
+			));
+$ilinha++;
+
+$base = PermissaoFinal("client","matriz");
+if ($base != "") { $base = false; }  else { $base = true; }
+
+while($row = mysql_fetch_row($result)){
+	if (($row[1] != $codparametro) && ($i != 0)) {
+		if ($qntlinha != '1') {
+			$parametro[$ii] = new $objeto ($array) ;
+			if ($ii%2) {
+				$para = $parametro;
+				if ($codparametro == "13" && $base == true) {
+					unset($para[$ii--]);
+					$linha[$ilinha] = new FPRowLayout(array(table_align => 'left', elements => $para));
+				} else {
+					$linha[$ilinha] = new FPRowLayout(array(table_title_cell_align => 'right',elements => $para));
+				}
+				$ilinha++;
+				unset($parametro);
+				$ii = -1;
+			}
+			$ii++;
+		} else {
+			unset($para);
+
+			$para[] = new $objeto ($array);
+			if ($codparametro == "13" && $base == true) { } else {
+				$linha[$ilinha] = new FPRowLayout(array(table_align => 'left', elements => $para));
+			}
+			$ilinha++;
+		}
+		unset($array);
+	}
+	$array[$row[2]] = $row[3];
+	if ($row[2] == "options")	$array[$row[2]] = $fp->Listar($row[3]);
+	if ($row[2] == "wrapper")	$array[$row[2]] = $$row[3];
+	if ($row[2] == "valid_RE")	$array[$row[2]] = constant($row[3]);
+
+	if ( ((($row[1] != $codparametro) && ($i != 0)) || (($i == 0) && (isset($codvariante)))) && (isset($codvariante))) {
+		$valor = mysql_fetch_array(execsql("select valor from $mysql_variantes_parametro_table where codparametro = '$row[1]' and codvariante = '$codvariante'"));
+		if ($valor[0] != "") {
+			$matriz = explode("\\\"",$valor[0]);
+			if ($row[0] == "FPSelect") {
+				$array['selected'] = $matriz;
+			} elseif($row[0] == "FPSelectPlus") {
+				$array['options'] = $matriz;
+			} elseif($row[0] == "FPTextField") {
+				$array['value'] = $valor[0];
+			} elseif($row[0] == "FPDateField") {
+				$array['value'] = $valor[0];
+			}
+		}
+	}
+	
+	$codparametro = $row[1];
+	$objeto = $row[0];
+	$qntlinha = $row[4];
+	$i++;
+}
+
+		if ($qntlinha != '1') {
+			$parametro[$ii] = new $objeto ($array);
+			$linha[$ilinha] = new FPRowLayout(array(table_title_cell_align => 'right',elements => $parametro));
+		} else {
+			$linha[$ilinha] =  new $objeto ($array);
+			$ilinha++;
+			$linha[$ilinha] = new FPRowLayout(array(table_align => right,elements => $parametro));
+		}
+
+	$ilinha++;
+	$linha[$ilinha] =
+            new FPRowLayout(array(
+            table_align => center,
+            table_padding => 20,
+            elements => array(
+			    new FPText(array(text => '<a href="relatorios.php"><img src="../images/btvoltar.gif" border="0"></a><input type=hidden name=transacao value='.$transacao.'>')),
+				new FPImageButton(
+                array(
+                    name => 'salvar',
+                    src => 'btsalvar.gif',
+					act => 'document.myForm.target = \'awindow\'; document.myForm.action=\'variantes.php?transacao='.$transacao.'\';'
+                )),
+                new FPImageButton(
+                array(
+                    name => 'submit',
+                    src => 'btavancar.gif',
+					act => 'document.myForm.target = \'_top\'; document.myForm.action=\''.$PHP_SELF.'\';'
+				))
+            )
+			));
+
+
+$myForm->setBaseLayout(
+
+	new FPColLayout(array(
+        table_padding => 5,
+        element_align => center,
+        elements => &$linha
+    ))
+);
+
+if ($myForm->getSubmittedData()  &&  $myForm->isDataValid()) {
+
+	$base = PermissaoFinal("client","matriz");
+	if ($base != "") { $base = false; }  else { $base = true; }
+
+	$sql = "select b.valor, b.campo, c.elemento, a.campo from $mysql_relatorios_table a, $mysql_relatelemento_table b, $mysql_parametros_table c where  b.campo = 'name' and a.codtransacao = '$transacao'  and b.codtransacao = a.codtransacao and b.codparametro = a.codparametro and a.codparametro = c.codparametro";
+	$result = execsql($sql);
+	while($row = mysql_fetch_row($result)){		unset($matriz); 	unset($in);
+		if ($row[2] == "FPSelect") {
+			if ($$row[0] == "")	{	$matriz = $fp->Listar($row[0]);	$cd = "c"; } else {	$matriz = $$row[0];	$cd = "d";}
+			if ($base == true && $row[0] == "selectbase")  {
+				$in = "'150',";
+			} else {
+				foreach ($matriz as $campo => $desc) {	if ($cd == "c") $in .= "'".$campo."',"; else $in .= "'".$desc."',";		}
+			}
+			$where .= " and a.".$row[3]." in (".substr($in,0,-1).")";
+			if ($row[0] != "selectbase") {
+				$inforelat[$row[3]] = str_replace("'","",str_replace("',",", ",substr($in,0,-1)));
+			}
+
+		} elseif ($row[2] == "FPSelectPlus") {
+			if ($$row[0] != "")	{
+                $$row[0] = str_replace('"',':',$$row[0]);
+				$matriz = explode(":",$$row[0]);//}
+
+//				$matriz = explode("\\\"",substr($$row[0],0,-2));
+				foreach ($matriz as $campo) {
+					if ($row[0] == "cliente") {
+						$sql = "select codcliente from $mysql_clientes_table where cgc like '".substr($campo,0,strpos($campo,"-")-1)."%'";
+						$result2 = execsql($sql);
+						while($row2 = mysql_fetch_row($result2)){ $in .= "'".$row2[0]."',";	}
+					} elseif ($row[0] == "estado") {
+						$in .= "'".$campo."',";
+					} elseif ($row[0] == "loja") {
+						$in .= "'".$campo."',";
+					} elseif ($row[0] == "codcliente") {
+						$in .= "'".$campo."',";
+					} else {
+						$in .= "'".substr($campo,0,strpos($campo,"-")-1)."',";
+					}
+				}
+				$where .= " and a.".$row[3]." in (".substr($in,0,-1).")";
+				$inforelat[$row[3]] = str_replace("'","",str_replace("',",", ",substr($in,0,-1)));
+			}
+
+		} elseif ($row[2] == "FPTextField") {
+			$where .= " and a.".$row[3]." = '".$$row[0]."'";
+			$inforelat[$row[3]] = $$row[0];
+
+		} elseif ($row[2] == "FPOneDateField") {
+			$where .= " and a.".$row[3]." = '".$$row[0]."'";
+			$inforelat[$row[3]] = $$row[0];
+
+		} elseif ($row[2] == "FPDateField") {
+
+// James 18/05/2008 ini
+//			$matriz = explode("\\\\\\\"",$$row[0]);
+            $matriz[1] = substr($$row[0],12,10);
+            $matriz[0] = substr($$row[0],1,10);
+            $dd1 = substr($$row[0],0,2);
+            $mm1 = substr($$row[0],3,2);
+            $aa1 = substr($$row[0],6,4);
+            $matriz[0] = $dd1.'/'.$mm1.'/'.$aa1;
+
+            $dd1 = substr($$row[0],12,2);
+            $mm1 = substr($$row[0],15,2);
+            $aa1 = substr($$row[0],18,4);
+			if ($aal <= 2010) $aal = 2099;
+            $matriz[1] = $dd1.'/'.$mm1.'/'.$aa1;
+            if($matriz[1] ==  '//') { $matriz[1] = $matriz[0];}
+
+// James 18/05/2008 fim
+
+			if ($matriz[1] != "") {
+				$where .= " and a.".$row[3]." >= '".data($matriz[0])."' and a.".$row[3]." <= '".data($matriz[1])."'";
+				$datawhere = " a.".$row[3]." >= '".data($matriz[0])."' and a.".$row[3]." <= '".data($matriz[1])."'";
+				$inforelat[$row[3]] = $matriz[0]." até ".$matriz[1];
+			} else  {
+				$where .= " and a.".$row[3]." = '".data($matriz[0])."'";
+				$datawhere = " a.".$row[3]." = '".data($matriz[0])."'";
+				$inforelat[$row[3]] = $matriz[0];
+			}
+
+		}
+	}
+
+	$where = substr($where,4);
+	session_register ("where");
+	session_register ("inforelat");
+	session_register ("datawhere");
+
+			echo "
+			<script Language=\"Javascript\">
+				windows('relatorios/".$transacao.".php?transacao=$transacao','".$transacao."');
+			</script>";
+    $myForm->display();
+} else
+    $myForm->display();
+
+
+	$mtime2 = explode(" ", microtime());
+	$endtime = $mtime2[0] + $mtime2[1];
+	$totaltime = $endtime - $starttime;
+	$totaltime = number_format($totaltime, 7);
+
+	echo "<br><br><br><center><font size=1>$gvendas_name<br>";
+	echo "Gerência de Tecnologia da Informação - </b> v$versaogvendas<br>";
+	echo "Processado em: $totaltime segundos, $queries Queries<br>";
+	echo "</font> </center>";
+
+ ?>
+
+   <SCRIPT type=text/javascript>
+Calendar._DN = new Array
+("Domingo",
+ "Segunda-feira",
+ "Terça-feira",
+ "Quarta-feira",
+ "Quinta-feira",
+ "Sexta-feira",
+ "Sábado",
+ "Domingo");
+Calendar._MN = new Array
+("Janeiro",
+ "Fevereiro",
+ "Março",
+ "Abril",
+ "Maio",
+ "Junho",
+ "Julho",
+ "Agosto",
+ "Setembro",
+ "Outubro",
+ "Novembro",
+ "Dezembro");
+
+Calendar._TT = {};
+Calendar._TT["TOGGLE"] = "Mudar o primeiro dia da semana";
+Calendar._TT["PREV_YEAR"] = "Voltar ano";
+Calendar._TT["PREV_MONTH"] = "Voltar mês";
+Calendar._TT["GO_TODAY"] = "Voltar para a data atual";
+Calendar._TT["NEXT_MONTH"] = "Próximo mês";
+Calendar._TT["NEXT_YEAR"] = "Próximo ano";
+Calendar._TT["SEL_DATE"] = "Selecionar data";
+Calendar._TT["DRAG_TO_MOVE"] = "Mover janela";
+Calendar._TT["PART_TODAY"] = " (hoje)";
+Calendar._TT["MON_FIRST"] = "Mostrar primeiro segunda";
+Calendar._TT["SUN_FIRST"] = "Mostrar primeiro domingo";
+Calendar._TT["CLOSE"] = "Fechar";
+Calendar._TT["TODAY"] = "Hoje";
+</SCRIPT>
+
+<SCRIPT type=text/javascript>
+var calendar = null; // remember the calendar object so that we reuse it and
+                     // avoid creation other calendars.
+
+// code from http://www.meyerweb.com -- change the active stylesheet.
+function setActiveStyleSheet(title) {
+  var i, a, main;
+  for(i=0; (a = document.getElementsByTagName("link")[i]); i++) {
+    if(a.getAttribute("rel").indexOf("style") != -1 && a.getAttribute("title")) {
+      a.disabled = true;
+      if(a.getAttribute("title") == title) a.disabled = false;
+    }
+  }
+  document.getElementById("style").innerHTML = title;
+  return false;
+}
+
+// This function gets called when the end-user clicks on some date.
+function selected(cal, date) {
+  cal.sel.value = date; // just update the date in the input field.
+  cal.sel.focus();
+
+    // if we add this call we close the calendar on single-click.
+    // just to exemplify both cases, we are using this only for the 1st
+    // and the 3rd field, while 2nd and 4th will still require double-click.
+    cal.callCloseHandler();
+}
+
+// And this gets called when the end-user clicks on the _selected_ date,
+// or clicks on the "Close" button.  It just hides the calendar without
+// destroying it.
+function closeHandler(cal) {
+  cal.hide();                        // hide the calendar
+
+  // don't check mousedown on document anymore (used to be able to hide the
+  // calendar when someone clicks outside it, see the showCalendar function).
+  Calendar.removeEvent(document, "mousedown", checkCalendar);
+}
+
+// This gets called when the user presses a mouse button anywhere in the
+// document, if the calendar is shown.  If the click was outside the open
+// calendar this function closes it.
+function checkCalendar(ev) {
+  var el = Calendar.is_ie ? Calendar.getElement(ev) : Calendar.getTargetElement(ev);
+  for (; el != null; el = el.parentNode)
+    // FIXME: allow end-user to click some link without closing the
+    // calendar.  Good to see real-time stylesheet change :)
+    if (el == calendar.element || el.tagName == "A") break;
+  if (el == null) {
+    // calls closeHandler which should hide the calendar.
+    calendar.callCloseHandler();
+    Calendar.stopEvent(ev);
+  }
+}
+
+// This function shows the calendar under the element having the given id.
+// It takes care of catching "mousedown" signals on document and hiding the
+// calendar if the click was outside.
+function showCalendar(id, format) {
+  var el = document.getElementById(id);
+  if (calendar != null) {
+    // we already have some calendar created
+    calendar.hide();                 // so we hide it first.
+  } else {
+    // first-time call, create the calendar.
+    var cal = new Calendar(true, null, selected, closeHandler);
+    calendar = cal;                  // remember it in the global var
+    cal.setRange(1900, 2070);        // min/max year allowed.
+    cal.create();
+  }
+  calendar.setDateFormat(format);    // set the specified date format
+  calendar.parseDate(el.value);      // try to parse the text in field
+  calendar.sel = el;                 // inform it what input field we use
+  calendar.showAtElement(el);        // show the calendar below it
+
+  // catch "mousedown" on document
+  Calendar.addEvent(document, "mousedown", checkCalendar);
+  return false;
+}
+
+var MINUTE = 60 * 1000;
+var HOUR = 60 * MINUTE;
+var DAY = 24 * HOUR;
+var WEEK = 7 * DAY;
+
+// If this handler returns true then the "date" given as
+// parameter will be disabled.  In this example we enable
+// only days within a range of 10 days from the current
+// date.
+// You can use the functions date.getFullYear() -- returns the year
+// as 4 digit number, date.getMonth() -- returns the month as 0..11,
+// and date.getDate() -- returns the date of the month as 1..31, to
+// make heavy calculations here.  However, beware that this function
+// should be very fast, as it is called for each day in a month when
+// the calendar is (re)constructed.
+function isDisabled(date) {
+  var today = new Date();
+  return (Math.abs(date.getTime() - today.getTime()) / DAY) > 10;
+}
+
+function flatSelected(cal, date) {
+  var el = document.getElementById("preview");
+  el.innerHTML = date;
+}
+
+function showFlatCalendar() {
+  var parent = document.getElementById("display");
+
+  // construct a calendar giving only the "selected" handler.
+  var cal = new Calendar(true, null, flatSelected);
+
+  // We want some dates to be disabled; see function isDisabled above
+  cal.setDisabledHandler(isDisabled);
+  cal.setDateFormat("DD, MM d");
+
+  // this call must be the last as it might use data initialized above; if
+  // we specify a parent, as opposite to the "showCalendar" function above,
+  // then we create a flat calendar -- not popup.  Hidden, though, but...
+  cal.create(parent);
+
+  // ... we can show it here.
+  cal.show();
+}
+</SCRIPT>
+</body>
+</html>

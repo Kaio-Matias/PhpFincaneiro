@@ -1,0 +1,81 @@
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0001','codfilial','2','1'); 
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0002','codgrpcliente','2','2'); 
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0004','codvendedor','1','7');  
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0007','codproduto','2','3');  
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0009','uf','2','8');  
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0010','codtipofatura','2','9');  
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0011','datafatura','1','10');  
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0012','codcliente','1','5');  
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0013','client','2','4');  
+insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2','0016','codcliente','1','6');  
+
+
+SELECT'insert into relatorios_estrutura (codtransacao, codparametro, campo, qntlinha, rank) VALUES ('GVRINDPER2',',codparametro, campo, qntlinha, rank FROM `relatorios_estrutura` WHERE `codtransacao` LIKE CONVERT(_utf8'GVRREAGPP3' USING utf8)
+
+SELECT'insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2',',codparametro, campo, valor FROM `relatorios_estrutelemento ` WHERE `codtransacao` LIKE CONVERT(_utf8'GVRREAGPP3' USING utf8)
+
+
+
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','css_style','width:250px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0016','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0016','css_style','width:250px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0016','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0016','size','6');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0016','title','Cliente:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0016','name','codcliente');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0013','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0013','css_style','width:150px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0013','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0013','title','Base:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0013','size','2');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0013','options','selectbase');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0012','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0013','name','selectbase');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0012','css_style','width:450px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0012','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0011','name','datafaturamento');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0011','title','Data Faturamento:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0011','required','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0012','name','cliente');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0011','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0012','size','6');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0010','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0012','title','Clientes (Agrupado por CGC):');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0010','css_style','width:250px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0010','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0010','size','6');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0010','title','Tipo de Faturamento:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0010','name','tipofatura');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0007','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0007','css_style','width:350px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0007','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0007','size','6');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0007','title','Produtos:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0007','name','produto');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0004','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0004','css_style','width:250px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0004','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0004','title','Representantes:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0004','size','6');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0004','name','representante');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0009','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0009','css_style','width:200px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0009','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0009','title','Estado:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0009','size','6');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0009','name','estado');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0001','options','selectfilial');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0001','size','6');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0001','name','selectfilial');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0001','title','Filial:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0001','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0001','css_style','width:250px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0001','multiple','true');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','name','selectcanal');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','size','6');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','options','selectcanal');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','title','Canal:');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','wrapper','leftWrapper');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','css_style','width:250px;');
+insert into relatorios_estrutelemento (codtransacao, codparametro, campo, valor) VALUES ('GVRINDPER2','0002','multiple ','true');

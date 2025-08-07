@@ -1,0 +1,132 @@
+<?php
+$mtime1 = explode(" ", microtime());
+$starttime = $mtime1[0] + $mtime1[1];
+
+require_once "../common/config.php";
+require_once "../common/config.acoes.php";
+require_once "../common/common.php";
+require_once "../common/common.acoes.php";
+$transacao = "SCACAO";
+require "../common/login.php";
+$idusuario = getUserID($cookie_name);
+
+?>
+<html>
+<head>
+<title>Tipo de Ação</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<link href="../Intranet_Style.css" rel="stylesheet" type="text/css">
+<SCRIPT language=JavaScript src="../menu/menu_acoes.js" type=text/javascript></SCRIPT>
+<SCRIPT language=JavaScript src="../menu/mmenu.js" type=text/javascript></SCRIPT>
+<script language=javascript>
+function small_window(myurl,tela) {
+	var newWindow;
+	var props = 'scrollBars=yes,resizable=yes,toolbar=no,menubar=no,location=no,directories=no,width=620,height=500';
+	newWindow = window.open(myurl, tela, props);
+}
+function reload(url) {
+	 location = 'index.php';
+}
+</script>
+<BODY leftmargin="0" topmargin="0" rightmargin="0" bottommargin="0" marginwidth="0" marginheight="0" class=body>
+<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+  <tr>
+    <td width="20"><img src="../images/acoesbarra2.gif" width="100" height="32"></td>
+    <td width="100%"><img src="../images/fundoverde.gif" width="100%" height="32"></td>
+    <td width=69 ><img src="../images/barravaledouradoverde.gif" width="108" height="32"></td>
+  </tr>
+</table>
+<br><br>
+<body>
+
+<?
+
+if(isset($submit)){
+
+	$sql = "insert into $mysql_tipoacao_table values(NULL,'$dsc_ta')";
+	execsql($sql);
+}
+
+
+if($m == 'delete2'){
+//	$sql = "delete from $mysql_tipoacao_table where codtipoacao=$cod_ta";
+//	execsql($sql);
+}
+
+if($m == 'atualizar'){
+
+$num_tipoacao = getNumTipoAcao();
+for($i=0; $i<$num_tipoacao; $i++){
+	$dsc_ta = "dsc_ta" . $i;
+	$cod_ta = "cod_ta" . $i;
+	
+	$sql = "update $mysql_tipoacao_table set descricao='".$$dsc_ta."' where codtipoacao='". $$cod_ta . "'";
+	execsql($sql);
+}
+
+
+}
+if($m == 'delete'){
+        echo "<form method=post>";
+        echo createHeader("Confirmação");
+        createHeader("<font color=red size=4>Você tem certeza?</font>");
+    echo "<br><br><center><a href=atipo.php><img border=0 src=../gerotina/images/voltar.gif></a> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href=atipo.php?m=delete2&cod_ta=$cod_ta><img border=0 src=../gerotina/images/avancar.gif></a></center><br><br><br><br><Br><br><br><br><br><br><Br><br><br><br><br><br><Br><br><br><br><br><br><Br><br>";
+} else {
+
+echo '
+	<form action=atipo.php method=post>
+   	<TABLE class=border cellSpacing=0 cellPadding=0 width=100% align=center border=0>			<TR>
+			<TD>
+				<TABLE cellSpacing=1 cellPadding=5 width=100% border=0>
+					<TR>
+					<TD colspan=100% align=middle><B>TIPOS DE AÇÃO</td>
+						</TR>
+		</table>	</td>
+			</tr>
+		</table>
+			<br>
+		<TABLE class=border bgcolor=F5F5F5 cellSpacing=0 cellPadding=0 width=60% align=center border=0>
+			<TR>
+			<TD>
+				<TABLE cellSpacing=1 cellPadding=2 width=100% border=0 align=center>
+					<TR>
+					<TD class=tdcabecalho1 colspan=100% align=left><B>Motivos			</td>
+						</TR>';
+
+				echo "<form name=form2 action=atipo.php?m=atualizar method=get>";
+				$num_rows = listTipoAcao();
+   	echo "<tr><td align=center colspan=100% class=back><input type=\"image\" src=\"images/save.gif\"><input type=hidden name=m value=atualizar><br><br></form></td></tr>";
+
+
+echo '   <form action=atipo.php method=post>               <tr>
+      	                    <td width=20% class=tdcabecalho1 align=right>Descrição:&nbsp;&nbsp;  </td>
+							<td width=70% class=tdcabecalho1 align=left><input type=text name=dsc_ta size=50></td>
+      						<td width=10% cclass=back align=center>&nbsp;&nbsp;<input type="image" src="images/save.gif"><input type=hidden name=submit value="Novo Tipo"></td>
+						</tr>   </form>
+
+		</table>
+
+
+
+			</td>
+			</tr>
+		</table>
+';
+
+
+}
+
+
+if($enable_stats == 'on'){
+	$mtime2 = explode(" ", microtime());
+	$endtime = $mtime2[0] + $mtime2[1];
+	$totaltime = $endtime - $starttime;
+	$totaltime = number_format($totaltime, 7);
+
+	echo "<br><center><font size=1>$nomeassessoria<br>";
+	echo "Gerência de Tecnologia da Infomação - </b> v$versaoassessoria<br>";
+	echo "Processado em: $totaltime segundos, $queries Queries<br>";
+	echo "</font> </center>";
+
+}
+?>

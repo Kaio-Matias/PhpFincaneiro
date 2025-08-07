@@ -1,0 +1,147 @@
+<?php
+/***********************************************************************************************************
+**
+**	arquivo:	common.equip.php
+**
+**	Este arquivo contem as variaveis do sistema e todas as funções q são utilizadas na intranet
+**
+************************************************************************************************************
+	**
+	**	author:	James Reig
+	**	data:	15/08/2017
+	**
+	*******************************************************************************************************/
+
+
+/**********************************************************************************************************/
+/****************************	Outras Variáveis	***********************************************************/
+$versaoequip = "0.01devel";							// Versão do equip
+
+
+/***********************************************************************************************************
+**	function createSelectLocalidade()
+**  Retorna a data para dar entrada no banco de dados
+************************************************************************************************************/
+function createSelectLocalidade($codlocal)
+{
+	global $mysql_local_table;
+
+	$sql = "select codlocal, texto from $mysql_local_table order by codlocal";
+	$result = execsql($sql);
+	echo "<select name='codlocal' style='width: 200px;'>";
+	while($row = mysql_fetch_row($result)){
+			if ($codlocal == $row[0]) $select = " selected "; else $select = "";
+			echo "<option value=\"$row[0]\" $select>".$row[0]." - ".$row[1];
+	}
+echo "</select>";
+}
+function createSelectCategoria()
+{
+	global $mysql_categoria_table, $info;
+
+	$sql = "select categoria, nome from $mysql_categoria_table order by nome asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['categoria'] == $row[0]) echo $info['categoria']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+
+function createSelectTpmovimento()
+{
+	global $mysql_tpmov_table, $info;
+
+	$sql = "select tpmov, nome from $mysql_tpmov_table order by tpmov asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['tpmov'] == $row[0]) echo $info['tpmov']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+
+function createSelectPessoa()
+{
+	global $mysql_responsavel_table, $info;
+
+	$sql = "select resp ,  nome  from $mysql_responsavel_table order by nome asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['resp'] == $row[0]) echo $info['resp']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+
+/***********************************************************************************************************
+**	function getlocalidade($idlocal):
+************************************************************************************************************/
+function getlocalidade($codlocal)
+{
+
+	global $mysql_local_table;
+	$row = mysql_fetch_array(execsql("select texto from equip.local where codlocal = $codlocal"));
+	return $row[0];
+}
+
+function createSelectLocal()
+{
+	global $mysql_centros_table, $info;
+  	$sql = "select centro cent, nome from gvendas.centros  order by centro asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['cent'] == $row[0]) echo $info['cent']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+
+function createSelectStatus()
+{
+	global $mysql_status_table, $info;
+  	$sql = "select status sit, nome from $mysql_status_table  order by nome asc";
+	$result = execsql($sql);
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($info['sit'] == $row[0]) echo $info['sit']." selected"; 
+				echo "> $row[1] </option>";
+	}
+}
+
+/***********************************************************************************************************
+**	function datatobanco():
+**  Retorna a data para dar entrada no banco de dados
+************************************************************************************************************/
+function datatobanco($data)
+{
+	$dia = substr($data,0,2);
+	$mes = substr($data,3,2);
+	$ano = substr($data,6,4);
+	return $ano."-".$mes."-".$dia;
+}
+
+function MostreEquip($codigo)
+{
+	global $mysql_equipamento_table;
+
+	$sql = "select nome from $mysql_equipamento_table where codigo = '".$codigo."' order by nome";
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+	return $row[0];
+}
+/***********************************************************************************************************
+**	function dataphp():
+************************************************************************************************************/
+function dataphp($data)
+{
+	$dia = substr($data,8,2);
+	$mes = substr($data,5,2);
+	$ano = substr($data,0,4);
+	return $dia."/".$mes."/".$ano;
+}

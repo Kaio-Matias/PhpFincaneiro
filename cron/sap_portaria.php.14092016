@@ -1,0 +1,25 @@
+<?
+$mtime1 = explode(" ", microtime());
+$starttime = $mtime1[0] + $mtime1[1];
+$ds = date('Ymd', strtotime("-30 days"));
+$data = date("Ymd");
+$email = '';
+include "aplicacoes.php";
+$email = "=-=-=-=-=-=-=-=-=-=-=-=-=-= Arquivo SAP X Portaria =-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
+$regis = db_query("SELECT r.origem,p.datasaida,r.romaneio,p.placa,p.responsavel,p.usuario,b.datacanhoto,r.notafiscal,r.cliente from prestconta.romaneios     as r left join prestconta.portaria  as p  ON p.romaneio = r.romaneio left join prestconta.rombaixas as b  ON b.romaneio = r.romaneio WHERE r.datasaida >= $ds");
+while($rg = mysql_fetch_row($regis)){
+    $arquivo .= $rg[0].';'.$rg[1].';'.$rg[2].';'.$rg[3].';'.$rg[4].';'.$rg[5].';'.$rg[6].';'.$rg[7].';'.$rg[8]."
+";
+}
+
+$myfile = fopen($CFG->diretorio."auditoria/portaria.txt","w");
+$fp = fwrite($myfile,$arquivo);
+fclose($myfile);
+
+$mtime2 = explode(" ", microtime());
+$endtime = $mtime2[0] + $mtime2[1];
+$totaltime = $endtime - $starttime;
+$totaltime = number_format($totaltime, 7);
+$email .= "\n=-=-=-=-=-=-=-=-=-=-= Data: ".date("d/m/Y")." Hora: ".date("H:i:s")." -=-=-=-=-=-=-=-=-=-=-=";
+$email .= "\n=- Processado em: $totaltime segundos";
+?>

@@ -1,0 +1,293 @@
+<?
+set_time_limit(6000);
+
+$mtime1 = explode(" ", microtime());
+$starttime = $mtime1[0] + $mtime1[1];
+$bom = 0;
+$ruim = 0;
+$i = 0;
+$conteudo = '';
+$email = '';
+
+if(date("m")=="01") {
+	$mes = "11";
+	$ano = date("Y")-1;
+} elseif (date("m")=="02") {
+	$mes = "12";
+	$ano = date("Y")-1;
+} else {
+	$mes = date("m")-2;
+	$ano = date("Y");
+}
+
+if(strlen($mes)==1) 
+	$mes = "0".$mes;
+
+//$ano = "2007"; $mes = "01";
+
+
+include "aplicacoes.php";
+$conteudo .= "=-=-=-=-=-=-=-=-=-=-=-=-=-=-= GESTÃO DE VENDAS =-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
+if (file_exists($CFG->diretorio."\historico\\".$ano.$mes."\vendas.txt")) {
+	$fd = fopen ($CFG->diretorio."\historico\\".$ano.$mes."\vendas.txt", "r");
+	$conteudo .= "\nArquivo Encontrado!";
+	$conteudo .= "\nDeletando Vendas...";
+
+    db_query("TRUNCATE TABLE vendastmp");
+    echo tempo()."Trucando a tabela vendastmp\n";
+
+	$deletevendas = "DELETE FROM vendas where datafatura like '".$ano.$mes."%'";
+
+	db_query("INSERT INTO prestconta.status (datahora,status) VALUES ('".date("Y-m-d H:i:s")."','0')");
+    echo tempo()."Inserindo dados na tabela vendastmp\n";
+
+	$conteudo .= "\nVendas Deletada.";
+	$conteudo .= "\n\nInserindo no banco...";
+
+	//Estes produtos possuem desp. icms diferenciado (7%) pra centro=1004 e filial=1004 a partir de 01/2006
+	$prod = array('A00016', 'A10016', 'A00017', 'A00018', 'A0001B', 'A0002B', 'A00100', 'A10100', 'A00101', 'A00102', 'A10102', 'A00104', 'A10104', 'A00200', 'A00203', 'A10203', 'A00210', 'A00512', 'A00521', 'A00523', 'A00654', 'A00655', 'A00656', 'A00657', 'A10657', 'A00658', 'A00659', 'A00660', 'A00661', 'A00662', 'A00663', 'A00664', 'A00665', 'A00666', 'A00667');
+
+	$prod10pcFOR = array('A00001', 'A00002', 'A10001', 'A10002'); //10% FOR 1004 <--> 1004 (válido de 02/2006)
+	$prod10pcREC = array('A00203', 'A10203', 'A00210','A00212'); //10% REC 1003 <--> 1003 (válido de 02/2006)
+	$prod15pcSSA = array('A10104', 'A10100', 'A10102'); //15% icms SSA 1001 <--> 1001 / 1008
+
+	$rsContrato = db_query("select codcliente, codproduto, percentual 
+							from financeiro.contratos c 
+							inner join financeiro.contratos_produtos cp on c.idcontrato=cp.idcontrato ");
+	while($row = mysql_fetch_row($rsContrato)) {
+		$contrato[$row[0]][$row[1]] = $row[2]/100;
+	}
+
+	while (!feof ($fd)) {
+		$i++;
+		$lala = fgets($fd, 4096);
+		$lala = ereg_replace("\n","",$lala);
+		@list($codcliente, $codgrpproduto, $codproduto, $codfilial, $codgrppreco, $codgrpcliente, $uf, $documento, $datafatura, $quantidade, $um, $codtipofatura, $cfop, $valorbruto, $valordesconto, $valoricms, $valoricmssub, $valoripi, $valorpis, $valorcofins, $comissao, $vendedor, $custoproduto, $codcondicaopg, $base, $dias, $codmeiopg, $docsd, $banco,$valoradicional, $client, $centro, $notafiscal, $despicms, $premiacao, $frete, $grandesredes, $outros, $motivo, $cofixo, $datapedido, $dataremessa, $entregue) = split (";", $lala, 44);
+		if (is_numeric($codcliente) && is_numeric($codgrpcliente)) {
+			$bom++;
+			if(($mes>=1) and ($ano>=2006)) {
+				//altera a desp. icms pra 7% do valor c/ adicional caso o centro seja 1004 e a filial 1004
+				if($codfilial=='1004' && $centro=='1004' && in_array($codproduto,$prod))
+					$despicms = 0.07*(negativo($valorbruto)+negativo($valordesconto)+negativo($valoradicional));
+			}
+			if(($mes>=2) and ($ano>=2006)) {
+				//altera a desp. icms pra 10% do valor c/ adicional caso o centro seja 1004 e a filial 1004
+				if($codfilial=='1004' && $centro=='1004' && in_array($codproduto,$prod10pcFOR))
+					$despicms = 0.1*(negativo($valorbruto)+negativo($valordesconto)+negativo($valoradicional));
+				//altera a desp. icms pra 10% do valor c/ adicional caso o centro seja 1004 e a filial 1004
+				if($codfilial=='1003' && $centro=='1003' && in_array($codproduto,$prod10pcREC))
+					$despicms = 0.1*(negativo($valorbruto)+negativo($valordesconto)+negativo($valoradicional));
+			}
+
+			if($ano.$mes>='200704') {
+				if( $codfilial=='1001' && in_array($codproduto,$prod15pcSSA) && ($centro=='1001' || $centro='1008') ) {
+					$valoricms = 0.15*(negativo($valorbruto)+negativo($valordesconto)+negativo($valoradicional));
+				}
+			}
+
+			db_query("INSERT INTO vendastmp (codcliente, codgrpproduto, codproduto, codfilial, codgrppreco, codgrpcliente, uf, documento, datafatura, quantidade, unidade, codtipofatura, cfop, valorbruto, valordesconto, valoricms, valoricmssub, valoripi, valorpis, valorcofins, comissao, codvendedor, custoproduto, codcondicaopg, base, dias, codmeiopg, docsd, banco, valoradicional, client, centro, notafiscal, despicms, premiacao, frete, grandesredes, outros, motivo, valorcofinsfixo, datapedido, dataremessa, desconto_contrato, entregue) VALUES ('$codcliente', '$codgrpproduto', '$codproduto', '$codfilial', '$codgrppreco', '$codgrpcliente', '$uf', '$documento', '$datafatura', '".negativo($quantidade)."', '$um', '$codtipofatura', '$cfop', '".negativo($valorbruto)."', '".negativo($valordesconto)."', '".negativo($valoricms)."', '".negativo($valoricmssub)."', '".negativo($valoripi)."', '".negativo($valorpis)."', '".negativo($valorcofins)."', '".negativo($comissao)."', '$vendedor', '".negativo($custoproduto)."', '$codcondicaopg', '$base', '$dias', '$codmeiopg', '$docsd','$banco','".negativo($valoradicional)."', '$client', '$centro', '$notafiscal', '$despicms', '$premiacao', '$frete', '$grandesredes', '$outros', '$motivo', '$cofixo', '$datapedido', '$dataremessa','".negativo((negativo($valorbruto)+negativo($valordesconto))*$contrato[abs($codcliente)][$codproduto])."','$entregue')");
+			$conteudo .= "\nVendas: codcliente -> '".$codcliente."' ,  codproduto -> '".$codproduto."' ,  datafatura -> '".$datafatura."' ,  Doc. SD -> '".$docsd."'";
+		 } elseif($lala == NULL) {
+			$i--;
+		 } else {
+				$conteudo .= "\nLinha com Problema: ".$lala;
+		 }
+	}
+
+	fclose ($fd);
+	$data = date("Y-m-d H:i:s");
+
+	$mtime2 = explode(" ", microtime());
+	$endtime = $mtime2[0] + $mtime2[1];
+	$totaltime = $endtime - $starttime;
+	$totaltime = number_format($totaltime, 7);
+	$email = "=-=-=-=-=-=-=-=-=-=-       GESTÃO DE VENDAS - Vendas       -=-=-=-=-=-=-=-=-=-=";
+	$email .= "\n=-=-=-=-=-=-=-=-=-=-=-=-=-=-=      Resumo      =-=-=-=-=-=-=-=-=-=-=-=-=-=-=";
+	$email .= "\n=-=-=-=-=-=-=-=-=-=-= Data: ".date("d/m/Y")." Hora: ".date("H:i:s")." -=-=-=-=-=-=-=-=-=-=-=";
+	if ($i >= 1) {
+		$email .= "\n=- Quantidades de linhas  boa(s): ".$bom." linha(s)";
+		$email .= "\n=- Quantidades de linhas ruim(s): ".$ruim." linha(s)";
+		$email .= "\n=-       Total de linhas        : ".$i." linha(s)";
+	}
+	$email .= "\n=- Processado em: $totaltime segundos";
+	$conteudo .= "\n\n".$email;
+
+	$myfile = fopen($CFG->log."VENDAS.TXT","w");
+	$fp = fwrite($myfile,$conteudo);
+	fclose($myfile);
+
+    echo tempo()."Inicio dos updates...\n";
+/*
+	if($mes=="11") {
+		db_query("UPDATE vendastmp set codproduto='A00001' where codproduto='A10001'");
+		db_query("UPDATE vendastmp set codproduto='A00002' where codproduto='A10002'");
+		db_query("UPDATE vendastmp set codproduto='A00007' where codproduto='A10007'");
+		db_query("UPDATE vendastmp set codproduto='A00010' where codproduto='A10010'");
+		db_query("UPDATE vendastmp set codproduto='A00016' where codproduto='A10016'");
+		db_query("UPDATE vendastmp set codproduto='A00100' where codproduto='A10100'");
+		db_query("UPDATE vendastmp set codproduto='A00102' where codproduto='A10102'");
+		db_query("UPDATE vendastmp set codproduto='A00104' where codproduto='A10104'");
+		db_query("UPDATE vendastmp set codproduto='A00203' where codproduto='A10203'");
+		db_query("UPDATE vendastmp set codproduto='A00204' where codproduto='A10204'");
+		db_query("UPDATE vendastmp set codproduto='A00657' where codproduto='A10657'");
+		db_query("UPDATE vendastmp set codproduto='A00668' where codproduto='A10668'");
+	}
+
+	if(($mes=="12") || ($mes=="01")) {
+		db_query("UPDATE vendastmp set codproduto='A10001' where codproduto='A00001'");
+		db_query("UPDATE vendastmp set codproduto='A10002' where codproduto='A00002'");
+		db_query("UPDATE vendastmp set codproduto='A10007' where codproduto='A00007'");
+		db_query("UPDATE vendastmp set codproduto='A10010' where codproduto='A00010'");
+		db_query("UPDATE vendastmp set codproduto='A10016' where codproduto='A00016'");
+		db_query("UPDATE vendastmp set codproduto='A10100' where codproduto='A00100'");
+		db_query("UPDATE vendastmp set codproduto='A10102' where codproduto='A00102'");
+		db_query("UPDATE vendastmp set codproduto='A10104' where codproduto='A00104'");
+		db_query("UPDATE vendastmp set codproduto='A10203' where codproduto='A00203'");
+		db_query("UPDATE vendastmp set codproduto='A10204' where codproduto='A00204'");
+		db_query("UPDATE vendastmp set codproduto='A10657' where codproduto='A00657'");
+		db_query("UPDATE vendastmp set codproduto='A10668' where codproduto='A00668'");
+	}
+*/
+    db_query("UPDATE vendastmp set codfilial = '1111' where datafatura >= '20050801' and datafatura <= '20050931' and codproduto = 'A00205' and codfilial = '1001'");
+	db_query("UPDATE vendastmp set valorcofins = 0.035*(valorbruto+valordesconto+valoradicional  where codproduto <> 'S10232'")");
+	db_query("UPDATE vendastmp set valorpis = 0.0075*(valorbruto+valordesconto+valoradicional), valorcofins = 0.0075*(valorbruto+valordesconto+valoradicional) where codproduto in ('A00001','A00002','A0001B','A0002B','A10001','A10002','A00020')");
+    db_query("UPDATE vendastmp set valorpis = 0.0075*(valorbruto+valordesconto+valoradicional), valorcofins = 0.0075*(valorbruto+valordesconto+valoradicional) where uf = 'AM'");
+	db_query("UPDATE vendastmp set codfilial = '1111' where datafatura >= '20051101' and datafatura <= '20051109' and codproduto = 'A00205' and codfilial = '1001'");
+	db_query("UPDATE vendastmp set codgrpcliente='75' where codcliente='313021' and notafiscal='318948' and documento='0091294975'");
+	db_query("UPDATE vendastmp set codgrpcliente='75' where codcliente='313021' and notafiscal='318949' and documento='0091294976'");
+
+	db_query("UPDATE vendastmp set codvendedor='125' where documento in ('91411593','91411594','91613133')");
+
+	db_query("UPDATE vendastmp set codfilial='1001' where datafatura>='20070501' and codvendedor=210");
+	db_query("UPDATE vendastmp set codproduto='A10016' where documento='0091586901' and codproduto='A00016'");
+
+	db_query("UPDATE vendastmp set codvendedor='380' where documento='91526234'");
+
+db_query("UPDATE vendastmp set codvendedor='154' where codvendedor in ('153','183') and datafatura>='20070901' and datafatura<='20070921'");
+
+	db_query("UPDATE vendastmp set codvendedor='368' where documento in ('91590304','91590305','91590306','91590307','91590308','91590309','91590316','91590319','91590320')");
+
+	db_query("UPDATE vendastmp set codvendedor='383' where documento in ('91503457','91503458')");
+	db_query("UPDATE vendastmp set codvendedor='311' where documento in ('91503498')");
+
+	db_query("UPDATE vendastmp set codvendedor='421' where documento in ('91685199')");
+
+	db_query("UPDATE vendastmp set codvendedor='235' where codvendedor=205 and datafatura>='20070301' and datafatura<='20070306'");
+	db_query("UPDATE vendastmp set codvendedor='207' where codvendedor=225 and datafatura>='20070301' and datafatura<='20070306'");
+
+	db_query("UPDATE vendastmp set codvendedor='151' where codvendedor=105 and datafatura>='20070301' and datafatura<='20070315'");
+	db_query("UPDATE vendastmp set codvendedor='150' where codvendedor=164 and datafatura>='20070301' and datafatura<='20070315'");
+
+	db_query("UPDATE vendastmp set codvendedor='389' where documento='91504327'");
+	db_query("UPDATE vendastmp set codvendedor='371' where documento in ('91503510','91503511','91503512','91588747','91509591','91509596')");
+	db_query("UPDATE vendastmp set codvendedor='373' where documento in ('91503994','91504012','91504035')");
+	db_query("UPDATE vendastmp set codvendedor='319' where documento in ('91503986','91503991','91503998','91503990','91503996','91503995','91503993','91503992','91503997','91504000','91503999')");
+
+	
+	db_query("UPDATE vendastmp set codvendedor='185' where documento in ('0091301941','0091447166','0091452926','0091451164','0091453747','0091453748','0091457757')");
+
+	db_query("UPDATE vendastmp set codvendedor='118' where codcliente='308058' and notafiscal='23213' and documento='0091306335'");
+	db_query("UPDATE vendastmp set codvendedor='124' where documento in ('91388914','91388915','91388916','91388917','91388918','91388919','91420917','91420918','91420919','0091475524','0091475525','0091512031','0091512032','0091512033', '91602673','91602674','91602675')");
+
+	db_query("UPDATE vendastmp set codvendedor='212' where documento in ('91640062','91645666','91640047','91640048','91640053','91644866','91644867','91645653','91640026','91640027','91645657','91640043','91644863','91645645','91640063','91640064','91645667','91640041','91644862','91645643','91640060','91645664','91640044','91645646','91640050','91645659','91649933','91640051','91645650','91640049','91644864','91645649','91640045','91645647','91640054','91640046','91645648','91640040','91640052','91645651','91645652','91640055','91645654','91640030','91645658','91640042','91641483','91645644')");
+
+	db_query("UPDATE vendastmp set codvendedor='713' where documento in ('91372096','91372099','91372100','91372183','91372190','91372198','91366652','91366654','91366662','91372182','91372184','91372195','91366635','91366636')");
+
+	db_query("UPDATE vendastmp set codvendedor='720' where documento in ('0091389750','0091389751','0091391287','0091391288')");
+
+	db_query("UPDATE vendastmp set codvendedor='136' where documento in ('0091441108','0091439140','0091447157','0091457708','0091459305','0091459306','0091460055','0091460056','0091461009','0091461374','0091462758','0091463797','0091463798','0091475522','0091475523')");
+	
+	db_query("UPDATE vendastmp set codvendedor='186' where documento in ('0091437730','0091437731','0091441015','0091442436','0091442437')");
+
+	db_query("UPDATE vendastmp set codvendedor='106' where documento in ('0091462838')");
+
+	db_query("UPDATE vendastmp set codvendedor='471', codgrpcliente='75' where documento in ('91648181','91639665','91684382')");
+	db_query("UPDATE vendastmp set codvendedor='426' where documento in ('91654684','91656769','91656770','91659351')");
+	db_query("UPDATE vendastmp set codvendedor='417' where documento in ('91658408','91658409','91668357')");
+
+
+	db_query("UPDATE vendastmp set codvendedor='501' and codfilial='1005' where documento in ('0091439603','0091435838','0091435839')");
+
+	db_query("UPDATE vendastmp set codvendedor='233' where documento='0091449988'");
+
+	db_query("UPDATE vendastmp set codvendedor='351' where documento in ('91543754','91543755','91543756','91543757','91543758','91543759','91576708')");
+
+	db_query("UPDATE vendastmp set codvendedor='372' where documento='91543775'");
+
+	db_query("UPDATE vendastmp set codvendedor='180' where datafatura>='20070501' and codvendedor='186'");
+
+	db_query("UPDATE vendastmp set codvendedor='430' where documento in ('91602464','91602465','91602466','91602467','91602468','91602469','91602470','91602471','91602472','91602476','91602538','91602539','91602540','91602582','91602585','91602587')");
+
+	db_query("UPDATE vendastmp set codvendedor='184' where documento in ('0091364253','0091364290','0091363859','0091363860','0091364228','0091364233','0091364687','0091365415','0091365423','0091365424','0091365567','0091365568','0091365569','0091364392','0091364394','0091363471','0091363697','0091364872')");
+
+
+	db_query("UPDATE vendastmp set valorpis = 0.0075*(valorbruto+valordesconto+valoradicional), valorcofins = 0.0075*(valorbruto+valordesconto+valoradicional) where datafatura>='20051201' and codproduto in ('A00200','A00202','A10203','A00203','A00204','A00205','A00207','A00209','A00210','A00211','A00212','A00512','A00523','S10200','S10201','S10218')");
+
+	db_query("UPDATE vendastmp set codgrpcliente='50' where codcliente='322877' and documento='0091317529'");
+	db_query("UPDATE vendastmp set codgrpcliente='55' where codcliente='307028' and documento='0091326602'");
+
+	db_query("UPDATE vendastmp set codfilial='1001', codvendedor='137' where documento in ('91346839','91508067','91514913','91559881')");
+	db_query("UPDATE vendastmp set codfilial='1001', codvendedor='136' where documento in ('91521088','91521087')");
+
+	db_query("UPDATE vendastmp set codfilial='2222', codtipofatura='ZVDM', codvendedor='707' where documento in ('91600225')");
+
+db_query("UPDATE vendastmp set datafatura='20070430' where documento in ('91584996','91583874','91583875','91584981','91584982','91583856','91584983','91583846','91583857','91584989','91583870','91583858','91583871','91583859')");
+
+    db_query("DELETE FROM vendastmp WHERE documento = '0091151708' and datafatura = '20050327' and codcliente = '310064'");
+    db_query("DELETE FROM vendastmp WHERE documento = '0091153619' and datafatura = '20050328' and codcliente = '310064'");
+    db_query("DELETE FROM vendastmp WHERE documento = '0091151714' and datafatura = '20050328' and codcliente = '310064'");
+    db_query("DELETE FROM vendastmp WHERE documento = '0091154620' and datafatura = '20050328' and codcliente = '310064'");
+
+    echo tempo()."Deletando dados da tabela vendas\n";
+if($mes=='05' && $ano=='2007') {
+	db_query("DELETE FROM vendas where documento in ('91584996','91583874','91583875','91584981','91584982','91583856','91584983','91583846','91583857','91584989','91583870','91583858','91583871','91583859')");
+}
+	db_query($deletevendas);
+
+	echo tempo()."Fechando tabela vendas e vendastmp\n";
+	db_query("LOCK TABLES vendas WRITE, vendastmp WRITE");
+
+	echo tempo()."Iniciando a carga na tabela vendas\n";
+	db_query("INSERT INTO vendas SELECT * FROM vendastmp");
+	echo tempo()."Finalizada a carga na tabela vendas\n";
+
+    db_query("UNLOCK TABLES");
+    echo tempo()."Liberada a tabela vendas\n";
+
+    db_query("UPDATE prestconta.status SET status = '1', datahoraf = '".date("Y-m-d H:i:s")."' where status = '0'");
+
+    echo tempo()."Atualizando resumogeral\n";
+	db_query("DELETE FROM resumogeral where mes = '".$mes."' and ano = '".$ano."'");
+	db_query("INSERT INTO resumogeral SELECT datafatura, substring(datafatura,5,2) mes, substring(datafatura,1,4) ano, codfilial, codgrpcliente, codproduto, codvendedor, sum(quantidade), sum(valorbruto), sum(valordesconto), sum(valoradicional), sum(valoricms+valoricmssub+valoripi+valorpis+valorcofins+despicms), sum(custoproduto*quantidade), client FROM vendastmp where codtipofatura $bonificacao GROUP BY codfilial, codgrpcliente, codproduto, codvendedor, datafatura");
+
+    echo tempo()."Atualizando resumoimpostos\n";
+	db_query("DELETE FROM resumoimpostos where mes = '".$mes."' and ano = '".$ano."'");
+	db_query("INSERT INTO resumoimpostos SELECT $mes, $ano, codfilial, codgrpcliente, codproduto , sum(valoricms+valoricmssub+despicms)*100/sum(valorbruto+valordesconto+valoradicional) icms, sum(valoripi)*100/sum(valorbruto+valordesconto+valoradicional) ipi, sum(valorpis)*100/sum(valorbruto+valordesconto+valoradicional) pis, sum(valorcofins)*100/sum(valorbruto+valordesconto+valoradicional) cofins FROM vendastmp where codtipofatura $bonificacao GROUP BY codfilial, codgrpcliente, codproduto");
+
+    echo tempo()."Atualizando resumoprazo\n";
+	db_query("DELETE FROM resumoprazo where data >= '".$ano.$mes."01' and data <= '".$ano.$mes."31'");
+	db_query("INSERT INTO resumoprazo SELECT datafatura, codfilial, codgrpcliente, codmeiopg, codcondicaopg, banco, dias, sum(quantidade), sum(valorbruto), sum(valordesconto), sum(valoradicional), client FROM vendastmp where codtipofatura $bonificacao GROUP BY codfilial, codgrpcliente, dias, codmeiopg, codcondicaopg, banco, datafatura, client");
+
+    echo tempo()."Atualizando devresumo\n";
+	db_query("DELETE FROM logistica.devresumo where mes = '".$mes."' and ano = '".$ano."'");
+	db_query("INSERT INTO logistica.devresumo SELECT $mes,$ano, datafatura, codfilial, codgrpcliente, codgrpproduto, codproduto, codvendedor, uf, codtipofatura, sum(valorbruto+valordesconto+valoradicional) FROM gvendas.vendastmp GROUP BY datafatura, codfilial, codgrpcliente, codproduto, codvendedor, uf, codtipofatura");
+
+	db_query("DELETE FROM logistica.devhierarquia where mes = '".$mes."' and ano = '".$ano."'");
+	db_query("INSERT INTO logistica.devhierarquia SELECT mes, ano, codfilial, codgrpcliente, codsupervisor, codvendedor FROM gvendas.metavendedor where mes = '".$mes."' and ano = '".$ano."' GROUP BY mes, ano, codfilial, codgrpcliente, codsupervisor, codvendedor");
+
+} else {
+	$conteudo .= "\nArquivo não encontrado!";
+	$email .= "\nArquivo não encontrado!";
+}
+
+	echo $ano.$mes;
+
+mail("portal@valedourado.com.br", "Gestão de Vendas - Vendas", $email, "From: GVENDAS");
+
+function negativo($valor) {
+if (substr($valor,-1) == '-')
+	return substr($valor,-1).str_replace(" ", "", substr($valor,0,-1));
+else
+	return $valor;
+}
+?>

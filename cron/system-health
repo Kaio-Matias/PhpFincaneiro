@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+# /etc/cron.daily/system-health
+#
+# Run a full report on the system health
+#
+echo
+/usr/bin/system-health -firs
+ 

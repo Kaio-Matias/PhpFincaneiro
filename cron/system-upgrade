@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# /etc/cron.daily/system-upgrade
+#
+# Perform system upgrade
+#
+
+# Comment the next line to enable
+exit
+
+echo "*** System Upgrade ***"
+echo
+/usr/bin/system-update -Sy
+ 

@@ -1,0 +1,14 @@
+<?php
+// Tabelas do fluxo de caixa
+$mysql_db_cockpit = "cockpit";
+$mysql_db_UMDnew  = "UMDnew";
+$mysql_db_gvendas = "gvendas";
+$mysql_database_fluxocaixa = "fluxocaixa.";
+
+$mysql_banco_table			=	$mysql_database_fluxocaixa."banco";	
+$mysql_despesa_table		=	$mysql_database_fluxocaixa."despesa";
+$mysql_extrato_table        =   $mysql_database_fluxocaixa."extrato";
+$mysql_grupo_table	        =	$mysql_database_fluxocaixa."grupo";
+$mysql_pagto_det_table      =	$mysql_database_fluxocaixa."pagto_det";
+$mysql_previsao_table	    =	$mysql_database_fluxocaixa."previsao";
+?>

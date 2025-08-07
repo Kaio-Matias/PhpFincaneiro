@@ -1,0 +1,246 @@
+<?php
+/***********************************************************************************************************
+**
+**	arquivo:	common.prestconta.php
+**
+**	Este arquivo contem as funções do sistema de Prestação de Contas
+**
+************************************************************************************************************
+	**
+	**	autor:		Saulo Felipe
+	**	data:		28/07/2003
+	**  atualizado: 28/07/2003
+	*******************************************************************************************************/
+
+
+/**********************************************************************************************************/
+/****************************	Outras Variáveis	*******************************************************/
+
+$versaoprestconta = "1.0";							// Versão do Gestão de Logística
+$nomeprestconta = "Prestação de Contas - Valedourado";
+
+/***********************************************************************************************************
+**	function MontarSelectMeiopg($meiopg,$nf,$opcao):
+**		Retorna a select para o determinado meio de pagamento de acordo com a customização do mesmo.
+**		Utilizando o número da nota fiscal para identificar.
+**
+**		Entradas: $meiopg -> Valor do meio de pagamento.
+**				  $opcao  -> Option que será selecionada.
+**
+**	  	   Saída: A função retorna com a utilização do return toda e estrutura de escalonamento do meio
+**				  de pagamento com referencia no valor de entrada.
+**
+************************************************************************************************************/
+
+function MontarSelectMeiopg($meiopg,$nf,$opcao = "")
+{
+	global $mysql_movmeiopg_table;
+	if ($opcao == "") $opcao = $meiopg;
+
+	$sql = "select parameiopg from $mysql_movmeiopg_table where meiopg = '".$meiopg."' order by rank";
+	$result = execsql($sql);
+	$retorno = "<select name='mp$nf' style='width: 35px;' onchange='bloquear(document.romaneio.mp$nf.options[document.romaneio.mp$nf.selectedIndex].value,$nf);'>";
+	while($row = mysql_fetch_row($result)){
+		if ($opcao == $row[0]) { $select = " selected"; } else { $select = ""; };
+		$retorno .= "<option value=\"$row[0]\"$select>".$row[0];
+	}
+		if ($meiopg == $opcao) { $select = " selected"; } else { $select = ""; };
+		$retorno .= "<option value=\"$meiopg\"$select>".$meiopg;
+	$retorno .= "</select>";
+	return $retorno;
+}
+
+/***********************************************************************************************************
+**	function MontarSelectMeiopg($meiopg,$nf,$opcao):
+**		Retorna a select para o determinado meio de pagamento de acordo com a customização do mesmo.
+**		Utilizando o número da nota fiscal para identificar.
+**
+**		Entradas: $meiopg -> Valor do meio de pagamento.
+**				  $opcao  -> Option que será selecionada.
+**
+**	  	   Saída: A função retorna com a utilização do return toda e estrutura de escalonamento do meio
+**				  de pagamento com referencia no valor de entrada.
+**
+************************************************************************************************************/
+
+function MontarSelectChequesLoc($opcao = "")
+{
+	global $mysql_chequesloc_table;
+
+	$sql = "select idchequeloc, nome from $mysql_chequesloc_table order by idchequeloc";
+	$result = execsql($sql);
+	$retorno = "<select name='chequesloc' style='width: 150px;'>";
+	while($row = mysql_fetch_row($result)){
+		if ($opcao == $row[0]) { $select = " selected"; } else { $select = ""; };
+		$retorno .= "<option value=\"$row[0]\"$select>".$row[1];
+	}
+	$retorno .= "</select>";
+	return $retorno;
+}
+
+
+/***********************************************************************************************************
+**	function MostrarChequeLoc($chequesloc):
+**		Retorna a descrição do local.
+**
+**		Entradas: $chequesloc -> Local de cheque.
+**
+**	  	   Saída: A função retorna com a utilização do return a descrição do local.
+**
+************************************************************************************************************/
+
+function MostrarChequesLoc($idchequesloc)
+{
+	global $mysql_chequesloc_table;
+
+	$result = execsql("select idchequeloc, nome from $mysql_chequesloc_table where idchequeloc = '$idchequesloc'");
+	$row = mysql_fetch_row($result);
+	return $row[1];
+}
+
+
+/***********************************************************************************************************
+**	function DataToBanco($data):
+**		Retorna a data que sera utiliada na ataulização do banco de dados
+**
+**		Entradas: $data -> Data no formato d/m/Y
+**
+**	  	   Saída: A função retorna com a utilização do return a data no formato Y-m-d
+**
+************************************************************************************************************/
+function DataToBanco($data)
+{
+	$dia = substr($data,0,2);
+	$mes = substr($data,3,2);
+	$ano = substr($data,6,4);
+	return $ano."-".$mes."-".$dia;
+}
+
+/***********************************************************************************************************
+**	function createSelectMiopg():
+**		Takes no arguments.  Creates the drop down menu for the list of platforms.
+************************************************************************************************************/
+function createSelectMeiopg($name,$mp = "")
+{
+	global $mysql_meiopg_table;
+
+	$sql = "select codmeiopg, nome from $mysql_meiopg_table order by codmeiopg";
+	$result = execsql($sql);
+	echo "<select name='$name' style='width: 250px;'>"; 
+
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+			if($mp == $row[0]) echo " selected"; 
+				echo "> $row[1] </option>";
+	}
+	echo "</select>";
+}
+
+/***********************************************************************************************************
+**	function gerarbaixadepois():
+**		Takes no arguments.  Creates the drop down menu for the list of platforms.
+************************************************************************************************************/
+function gerarmm($centro,$quando) {
+	global $mysql_romcentros_table;
+	$sql = "select mmdepois from $mysql_romcentros_table where centro = '$centro'";
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+
+	if ($quando == "depois") {
+		if ($row[0] == 1) {
+			return true;
+		} else { 
+			return false;
+		}
+	} else {
+		if ($row[0] == 0) {
+			return true;
+		} else { 
+			return false;
+		}
+	}
+}
+
+
+/***********************************************************************************************************
+**	function gerarbaixadepois():
+**		Takes no arguments.  Creates the drop down menu for the list of platforms.
+************************************************************************************************************/
+function definirazao($romaneio) {
+	global $mysql_romfrete_table, $mysql_romcentros_table, $mysql_pedrazao_table;
+	$sql = "select tipofatura, codfilial, origem from $mysql_romfrete_table where romaneio = '$romaneio'";
+	$result = execsql($sql);
+	while($row = mysql_fetch_row($result)){
+		$tipofatura[$row[0]] += 1;
+		$codfilial[$row[1]] += 1;
+		$origem = $row[2];
+	}
+	$qnt = count($tipofatura);
+
+	if ($tipofatura['ZVTF'] != 0) {
+		$sql = "select razao, classificacao from $mysql_pedrazao_table where origem = '$origem' and tipofatura = 'ZVTF'";
+		$email = "\nRomaneio $romaneio de Transferência - ";
+	} else {
+		$sql = "select razao, classificacao from $mysql_pedrazao_table where origem = '$origem' and tipofatura = '*'";
+		$email = "\nRomaneio $romaneio de Vendas - ";
+	}
+
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+
+	$email .= $row[0]."\n";
+
+	$email .= "Faturas\n";
+	while(list($key,$value) = each($tipofatura)) { 	$email .= "$key : $value\n"; 	} 
+	$email .= "CodFilial\n";
+	while(list($key,$value) = each($codfilial)) { 	$email .= "$key : $value\n"; 	} 
+
+	$return[0] = $row[0];
+	$return[1] = $email;
+	$return[2] = $row[1];
+	return $return;
+
+}
+
+/***********************************************************************************************************
+**	function createSelectPosto():
+**		Takes no arguments.  Creates the drop down menu for the list of platforms.
+************************************************************************************************************/
+function createSelectPosto($centro,$select)
+{
+	global $mysql_pedcombustivel_table;
+
+	$sql = "select codfornecedor, nome from $mysql_pedcombustivel_table where origem = '$centro' order by codfornecedor";
+	$result = execsql($sql);
+	echo "<select name='selectposto' style='width: 250px;' onchange='mostrarvalorfrete();'>"; 
+	echo "<option value=''> Sem Posto </option>";
+	while($row = mysql_fetch_row($result)){
+			echo "<option value=\"$row[0]\"";
+						if($select == $row[0]) echo " selected"; 
+				echo "> $row[1] </option>";
+	}
+	echo "</select>";
+}
+
+/***********************************************************************************************************
+**	function ProximoComp():
+**		Takes no arguments.  Creates the drop down menu for the list of platforms.
+************************************************************************************************************/
+function ProximoComp()
+{
+	global $mysql_comp_table;
+
+	$row = mysql_fetch_row(execsql("select idcomp+1 from $mysql_comp_table order by idcomp DESC LIMIT 1"));
+	return $row[0];
+}
+
+/***********************************************************************************************************
+**	function dataphp():
+************************************************************************************************************/
+function dataphp($data)
+{
+	$dia = substr($data,8,2);
+	$mes = substr($data,5,2);
+	$ano = substr($data,0,4);
+	return $dia."/".$mes."/".$ano;
+}

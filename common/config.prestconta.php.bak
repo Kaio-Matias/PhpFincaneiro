@@ -1,0 +1,64 @@
+<?php
+/***********************************************************************************************************
+**
+**	arquivo:	config.logistica.php
+**
+**	Variaveis do mysql para o sistema de Logística
+**
+************************************************************************************************************
+	**
+	**	author:	Saulo Felipe
+	**	date:	28/07/2003
+	**
+	*******************************************************************************************************/
+
+$qntnf = "1";
+
+/**********************************************************************************************************/
+/**********************************************************************************************************/
+// Tabelas do Gestão de Logística
+
+$mysql_database_logistica = "prestconta.";
+
+$mysql_romaneios_table		=	$mysql_database_logistica."romaneios";		// Nome da tabela de Romaneios
+$mysql_log_table		    =	$mysql_database_logistica."romlog";			// Nome da tabela de Log
+$mysql_baixas_table		    =	$mysql_database_logistica."rombaixas";		// Nome da tabela de Controle das baixas das notas
+$mysql_movmeiopg_table		=	$mysql_database_logistica."rommovmeiopg";	// Nome da tabela de Movimentação no meio de pagamento
+$mysql_cheques_table		=	$mysql_database_logistica."romcheques";		// Nome da tabela de Cheques
+$mysql_romcentros_table		=	$mysql_database_logistica."romcentros";		// Nome da tabela de Conta contabil
+$mysql_chequesloc_table		=	$mysql_database_logistica."romchequesloc";	// Nome da tabela de Cheques
+$mysql_chequesmov_table		=	$mysql_database_logistica."romchequesmov";	// Nome da tabela de Cheques
+
+$mysql_romfrete_table		=	$mysql_database_logistica."romfrete";		// Nome da tabela de Frete por NF
+$mysql_romfreteextra_table	=	$mysql_database_logistica."romfreteextra";		// Nome da tabela de Frete por NF
+$mysql_romfreteposto_table	=	$mysql_database_logistica."romfreteposto";		// Nome da tabela de Frete por NF
+$mysql_romfretebuonny_table	=	$mysql_database_logistica."romfretebuonny";		// Nome da tabela de Contas Razão
+
+$mysql_comp_table		    =	$mysql_database_logistica."compartilhamento";// Nome da tabela de Cheques
+
+
+$mysql_rompedido_table		=	$mysql_database_logistica."rompedido";		// Nome da tabela de Informações de Romaneios de Fábrica
+$mysql_pedcombustivel_table	=	$mysql_database_logistica."pedcombustivel";	// Nome da tabela de Fornecedores de combustível
+$mysql_pedrazao_table		=	$mysql_database_logistica."pedrazao";		// Nome da tabela de Contas Razão
+$mysql_pedsemped_table		=	$mysql_database_logistica."pedsemped";		// Nome da tabela de Fornecedores sem Pedido
+
+$mysql_itinerarios_table	=	$mysql_database_logistica."itinerarios";	// Nome da tabela de Itinerarios
+
+$mysql_fechamento_table		=	$mysql_database_logistica."fechamento";		// Nome da tabela de Itinerarios
+$mysql_chequesfec_table		=	$mysql_database_logistica."romchequesfecha";// Nome da tabela de Cheques
+
+$mysql_fretemanual_table	=	$mysql_database_logistica."fretemanual";		// Nome da tabela de Contas Razão
+$mysql_status_table		=	$mysql_database_logistica."status";		     // Nome da tabela de Contas Razão
+
+$mysql_condveic_table		=	$mysql_database_logistica."condveic";		// Nome da tabela de Condição do veículo
+$mysql_carga_table	        =	$mysql_database_logistica."carga";		    // Nome da tabela de carga
+$mysql_eixos_table   		=	$mysql_database_logistica."eixos";		    // Nome da tabela de eixos
+$mysql_conserva_table		=	$mysql_database_logistica."conservacao";	// Nome da tabela de Conservação
+$mysql_climatiza_table		=	$mysql_database_logistica."climatizacao";	// Nome da tabela de Climatizacao
+$mysql_tipocarga_table		=	$mysql_database_logistica."tipocarga";		// Nome da tabela de tipo carga
+
+$mysql_portaria_table		=	$mysql_database_logistica."portaria";// tabela de log de saida portaria por romaneio
+$mysql_saldpgto_table		=	$mysql_database_logistica."saldopgto";// tabela de saldo pagto por romaneio
+$mysql_romaneio2_table		=	$mysql_database_logistica."romaneios2";		// Nome da tabela de Romaneios 2
+
+?>

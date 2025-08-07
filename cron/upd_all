@@ -1,0 +1,40 @@
+#!/bin/bash
+#/etc/init.d/mysql stop
+mount -t smbfs //10.1.0.21/bkpportal /bkpportal -o username=backup,password=suport12,uid=33,gid=33
+mkdir /bkpportal/portal-$(date +%d-%m-%y)
+cd /bkpportal/portal-$(date +%d-%m-%y)
+#DATA='/bin/date +%d-%m-%y'
+#MYSQLDUMP=/usr/bin/mysqldump
+#BACKUP_DIR=/backup/siccle
+#BACKUP_DIR2=/backup2
+#BACKUP_NAME=bkpsiccle-$(date +%d-%m-%y).sql
+
+mysqldump -u root -ptexto1 -e --database producao > producao.sql
+mysqldump -u root -ptexto1 -e --database gvendas > gvendas.sql
+mysqldump -u root -ptexto1 -e --database prestconta > prestconta.sql
+mysqldump -u root -ptexto1 -e --database fluxocaixa > fluxocaixa.sql
+mysqldump -u root -ptexto1 -e --database fluxocaixai > fluxocaixai.sql
+mysqldump -u root -ptexto1 -e --database logistica > logistica.sql
+mysqldump -u root -ptexto1 -e --database financeiro > financeiro.sql
+mysqldump -u root -ptexto1 -e --database CDI > CDI.sql
+mysqldump -u root -ptexto1 -e --database UMDnew > UMDnew.sql
+mysqldump -u root -ptexto1 -e --database novogerotina > novogerotina.sql
+mysqldump -u root -ptexto1 -e --database gerotina > gerotina.sql
+mysqldump -u root -ptexto1 -e --database cockpit > cockpit.sql
+mysqldump -u root -ptexto1 -e --database plano_acao > plano_acao.sql
+mysqldump -u root -ptexto1 -e --database rh > rh.sql
+mysqldump -u root -ptexto1 -e --database sac > sac.sql
+mysqldump -u root -ptexto1 -e --database contrato > contrato.sql
+mysqldump -u root -ptexto1 -e --database ppp > ppp.sql
+mysqldump -u root -ptexto1 -e --database projetos > projetos.sql
+mysqldump -u root -ptexto1 -e --database phpshop > phpshop.sql
+mysqldump -u root -ptexto1 -e --database phpmyadmin > phpmyadmin.sql
+mysqldump -u root -ptexto1 -e --database mysql > mysql.sql
+mysqldump -u root -ptexto1 -e --database litao2 > litao2.sql
+mysqldump -u root -ptexto1 -e --database information_schema > information_schema.sql
+mysqldump -u root -ptexto1 -e --database openit > openit.sql
+mysqldump -u root -ptexto1 -e --database openfire > openfire.sql
+mysqldump -u root -ptexto1 -e --database relatorios > relatorios.sql
+
+#umount /backup
+umount /bkpportal

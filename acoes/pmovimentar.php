@@ -1,0 +1,124 @@
+<?
+if (!isset($id)) { header("Location:procurar.php?pback=pmodificar"); }
+else {
+
+require_once "../common/config.php";
+require_once "../common/config.acoes.php";
+require_once "../common/common.php";
+require_once "../common/common.acoes.php";
+$transacao = "SCPMODIF";
+require "../common/login.php";
+$idusuario = getUserID($cookie_name);
+
+if(isset($atualizar)){
+	if($atualizacao != ''){
+		$msg = $atualizacao;
+		$log = updateLogJuridico($id, $msg);
+		$sql = "update $mysql_processos_table set log='$log' where codprocesso=$id";
+		execsql($sql);
+		$updated = 1;
+	}
+	if($descmov != ''){
+		$msg = "Movimentação Adicionada: $descmov";
+		$log = updateLogJuridico($id, $msg);
+		$sql = "update $mysql_processos_table set log='$log' where codprocesso=$id";
+		execsql($sql);
+
+	    $sql = "select DATE_ADD('".data($datamov)."',INTERVAL qtdedias DAY) venc from $mysql_tipomovimentacao_table where codtipomov = '$codtipomov'";
+	    $result = execsql($sql);
+	    $row = mysql_fetch_row($result);
+	    if ($datavenc == '') { $datavenc = $row[0]; }
+
+	    $sql = "insert into $mysql_movprocesso_table VALUES ('',$id,'".data($datamov)."','".data($datavenc)."','$codtipomov','$descmov','0')";
+	    execsql($sql);
+	    $updated = 1;
+
+        if ($codtipomov == '0001' || $codtipomov == '0002'){
+		   $sql1 = "update $mysql_processos_table set ativa='1' where codprocesso=$id";
+		   execsql($sql1);
+        }
+
+	}
+
+    header("Location:pmodificar.php?id=$id");
+}
+
+
+if(isset($a)){
+        echo "<form method=post action=index.php?t=pmovim>";
+        echo createHeader("Confirmação");
+        createHeader("<font color=red size=4>Você tem certeza?</font>");
+        echo "<input type=hidden name=aa value=$a>";
+        echo "<input type=hidden name=id value=$id>";
+        echo "<br><br><center><input type=submit name=delete2 value=Deletar></center>";
+} elseif(isset($f)){
+        echo "<form method=post action=index.php?t=pmovim>";
+        echo createHeader("Confirmação");
+        createHeader("<font color=red size=4>Você tem certeza?</font>");
+        echo "<input type=hidden name=ff value=$f>";
+        echo "<input type=hidden name=id value=$id>";
+        echo "<br><br><center><input type=submit name=delete2 value=Finalizar></center>";
+} else {
+if(isset($aa)){
+		$msg = "Movimentação Deletada: ".getdscmov($aa);
+		$log = updateLogJuridico($id, $msg);
+		$sql = "update $mysql_processos_table set log='$log' where codprocesso=$id";
+		execsql($sql);
+		$sql = "delete from $mysql_movprocesso_table WHERE codmovprocesso = '$aa'";
+		execsql($sql);
+}
+
+if(isset($ff)){
+		$msg = "Movimentação Finalizada: ".getdscmov($f);
+		$log = updateLogJuridico($id, $msg);
+		$sql = "update $mysql_processos_table set log='$log' where codprocesso=$id";
+		execsql($sql);
+		$sql = "update $mysql_movprocesso_table set status = '1' WHERE codmovprocesso = '$ff'";
+		execsql($sql);
+}
+
+if((isset($epartes)) or (isset($epatronos))){
+	if ($epartes != '') {
+		$epartes = partes($id);
+		$para = "Partes e";
+	}
+	if ($epatronos != '') {
+		$epatronos = patronos($id);
+		$para = $para." Patronos  ";
+	}
+	$dest = substr($epartes.$epatronos,0,-1);
+
+	if($email != ''){
+		$msg = "<i>Email Enviado para ".substr($para,0,-2).":</i><br><br>". $email;
+		$log = updateLogJuridico($id, $msg);
+		$sql = "update $mysql_processos_table set log='$log' where codprocesso=$id";
+		execsql($sql);
+
+	if($enable_smtp == 'win'){
+		mail($dest, "Processo Número: $numero",$email, "From: Controle de Processos <intranet@valedourado.com.br>\nContent-type: text/html");
+	}
+
+	}
+
+}
+
+}
+$info = getProcessoInfo($id);
+
+
+
+/***********************************************************************************************************
+**	function getdscmov():
+**		Takes no arguments.  Creates the drop down menu for the list of platforms.
+************************************************************************************************************/
+function getdscmov($codmov)
+{
+	global $mysql_movprocesso_table;
+	$sql = "select a.descricao from $mysql_movprocesso_table a where a.codmovprocesso = '$codmov'";
+	$result = execsql($sql);
+	$row = mysql_fetch_row($result);
+	return $row[0];
+}
+ }
+
+?>
